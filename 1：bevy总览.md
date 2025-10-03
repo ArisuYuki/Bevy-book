@@ -78,7 +78,7 @@ bevy_render:::RenderPlugin,
 
 在游戏的主要逻辑中，我们主要需要关注的就是Main中的逻辑，如果需要进行高级图形处理定制化渲染效果，则需要对Extract和Render过程进行修改。在Main调度中，又分为以下10个步骤，其含义不言而喻，`Startup`的三个过程在启动中只会执行一次，然后游戏将在一个`Update`循环中不断运行，之前我们在运行`hello_world`时所指定的`Update`就是这里。
 
-<img src="/home/shiraha-yuki/文档/Markdown/从0开始学bevy/image/chapter1/3.png" alt="3" style="zoom:25%;" />
+<img src="./image/chapter1/3.png" alt="3" style="zoom:25%;" />
 
 
 
