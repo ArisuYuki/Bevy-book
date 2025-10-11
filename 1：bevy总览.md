@@ -788,3 +788,13 @@ impl Plugin for CustomPlugin {
 
 ## 1.14 渲染
 
+​	Bevy中的渲染是基于`wgpu`来完成的，`wgpu`是一个基于`WebGPU`规范的的Rust实现，其本身是跨平台的，这使得Bevy也能够在不同的平台上进行渲染。对于一般的渲染而言，我们通常不需要接触Bevy的渲染管道，但是当我们需要进行某种高级的图形学渲染效果开发时，则需要在Bevy中编写自己的**渲染命令**来告诉Bevy如何渲染。
+
+​	在前面我们说到，Bevy中分为主世界和渲染世界，主世界中的组件通过`Extract`环节同步到渲染世界进行渲染，如果我们要在Bevy的渲染管线中自定义自己的渲染环节，则必须配置好以下几个部分使Bevy能够使用我们自己的着色器渲染数据。
+
+1. 创建一个`ExtractComponent`来标识需要渲染的实体并在`Extract`阶段将其同步到渲染世界，这可以通过一个名为`ExtractComponentPlugin`的插件来实现自动化同步。
+2. 在`RenderApp`上注册两个`Resource`作为缓冲区，一个储存了`RenderPipeline`包含。
+3. 编写一个或多个渲染逻辑，并实现`RenderCommand`特型，获取上一步`Resource`并结合其他代码决定如何处理数据，将这些逻辑组合成一个元组并在`RenderApp`上使用`add_render_command`方法注册。
+4. 在`RenderApp`的`Render`调度中的`Prepare`环节调用我们编写的`prepare`函数来准备渲染所需的数据，在这里定义我们的渲染管线的结构、缓冲区的布局等等。
+5. 在`RenderApp`的`Render`调度中的`Queue`环节调用我们编写的`queue`函数来渲染数据
+
