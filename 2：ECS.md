@@ -258,7 +258,186 @@ commands.entity(player).get::<Health>().unwrap();
 
 ## 2.3 System
 
+### 2.3.1 System Order
 
+​	回想一下在我们注册系统时，我们是将其组合在一个元组之中并调用`add_systems`方法添加的。但是当存在多个系统时，他们的运行顺序是怎样的呢？答案是：Bevy会努力使他们能够并行运行。
+
+​	“努力并行”是什么意思呢？Bevy会检查不同系统所需要的参数，当两个系统的参数不存在同一对象的可变引用时，Bevy将会并行执行两个系统。例如我们有一个hello_world和一个hello_bevy系统，二者的作用只是打印两条不同的消息。当我们的程序运行时，并行运行意味着你不会看到二者按照顺序依次不断被打印，打印的结果就像下面这样。
+
+```tex
+Hello, bevy!
+Hello, world!
+Hello, world!
+Hello, bevy!
+Hello, bevy!
+Hello, world!
+Hello, bevy!
+Hello, world!
+Hello, world
+```
+
+​	当二者之间存在某一对象的可变引用时，情况就不同了。例如下面的两个系统，当我们注册之后**并在其中使用了`commands`**（由于是惰性的，如果不使用则仍然会并行），Bevy将会发现这两个系统不能够并行调用，因此这两个系统将会按照我们添加时的顺序来调用。
+
+```rust
+fn first_system(mut commands: Commands) {
+  //...
+}
+
+fn second_system(mut commands: Commands) {
+  //...
+}
+```
+
+​	这很好，因为在这种情况下我们的系统确实不应该被并行。可如果存在两个系统能够并行，但是我们并不希望Bevy这样做时，我们该怎么办呢？Bevy为我们提供了一些便捷的方法来做到这种事，例如`before`、`after`、`chain`，顾名思义，这些方法的作用是指定某些系统和另一些系统的运行先后关系。不过需要注意的是，**使用这些方法时只是指定了顺序，你仍然需要把每个系统都注册，程序才能够正常运行。**
+
+```rust
+//在hello_world运行之前先运行hello_bevy，别忘了注册hello_bevy
+add_systems(Update, (hello_world.before(hello_bevy),hello_bevy));
+//在hello_bevy之后再运行hello_bevy，别忘了注册hello_world
+add_systems(Update, (hello_bevy.after(hello_world),hello_world));
+//以hello_bevy，hello_world的方式先后运行，这个方法更方便
+add_systems(Update, (hello_bevy,hello_world).chain());
+```
+
+​	这些方法在名为[`IntoScheduleConfigs`](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/trait.IntoScheduleConfigs.html#method.after)的特型上，还有一些其他的方便方法，读者可以自己查看相关文档，这里不再赘述。如果你查看过`add_systems`的签名，你会发现其第二个参数的类型就是实现了这个特型的泛型参数。Bevy为元组、函数等都实现了这个特型，这使得我们能够在函数上调用这些方法（他们本来不存在于这些类型上）。
+
+### 2.3.2 System Set
+
+​	当我们的系统越来越多时，如何管理和有条件的运行一批系统是至关重要的，例如我们希望用户在游戏中按下某个按键之后只运行系统的UI设置系统来渲染页面，而暂停游戏的逻辑。我们该如何有条件的运行和管理系统呢？Bevy中引入了`SystemSet`的概念，通过`SystemSet`我们可以将系统的运行阶段进行划分以更好的分组控制。
+
+​	要使用`SystemSet`，首先要定义一个`enum`类型，派生 `SystemSet`并继承一系列必需的标准 Rust 特征：
+
+```rust
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+enum MySystemSet {
+    SetOne,
+    SetTwo,
+}
+```
+
+​	之后，我们使用`in_set`方法来指定系统运行时需要所处的状态，使用`App`上的`configure_sets`来设置我们的系统的状态变化顺序，就像下面的代码一样（其中`hello_world_from_state_one`等系统只是一条打印消息的普通函数）。
+
+```rust
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_systems(
+            Update,
+            (hello_world_from_set_one, hello_bevy_from_set_one)
+                .chain()
+                .in_set(MySystemSet::SetOne),
+        )
+        .add_systems(
+            Update,
+            (hello_world_from_set_two, hello_bevy_from_set_two)
+                .chain()
+                .in_set(MySystemSet::SetTwo),
+        )
+        // .add_systems(Update, change_Set)
+        .configure_sets(Update, (MySystemSet::SetTwo, MySystemSet::SetOne).chain())
+        .run();
+}
+```
+
+​	运行这些代码，你可以发现我们的系统以下面的方式循环打印，这是因为我们以`chain`的方式指定了系统之间的运行顺序，因此总是先打印world再打印Bevy。同时，我们的这行代码`(MyState::StateTwo, MyState::StateOne).chain()`指定了在`Update`调度中，系统的状态是先处在`StateTwo`，然后变换到`StateOne`。因此`in_set(MyState::StateTwo)`内的两个系统将先运行，然后才是`in_set(MyState::StateOne)`的两个系统运行。
+
+```tex
+Hello, world! From set two
+Hello, Bevy! From set two
+Hello, world! From set one
+Hello, Bevy! From set one
+```
+
+### 2.3.3 State
+
+​	有了`SystemSet`我们可以对系统的运行阶段进行划分和分组，但是如何才能真正做到对系统运行阶段的控制呢？例如我们想要按下`ESC`键后能够暂停游戏逻辑的系统，而打开UI绘制和设置的系统，我们应该怎么做呢？这就要使用`State`来控制系统的状态。
+
+​	在计算机科学中，`State`是一个非常通用的概念，用于描述系统、物体或者实体在特定时间点或特定情况下的情况、性质或特征。在Bevy中，我们通过切换`App`的`State`，再利用`State`与`SystemSet`，就能实现我们的需求——动态的控制系统的运行与关闭。
+
+​	定义状态的步骤没什么特殊的，让编译器为我们实现`States`与一系列必需的标准 Rust 特征即可。然后，我们需要在`App`上使用`init_state`或者`insert_state`方法注册我们的状态。
+
+```rust
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Default, States)]
+enum MyState {
+  #[default]
+  StateOne,
+  StateTwo,
+}
+
+App::new()
+    // 添加我们的状态
+    .init_state::<MyState>()
+```
+
+​	之后，我们可以通过创建一个系统来根据需要动态的改变系统的状态，在此系统中，我们可以获得两个特殊的参数：`Res<State<MyState>>`和 `mut next_state: ResMut<NextState<AppState>>`，利用前者，我们可以获得当前所处的状态，后者则可以将状态转换为下一状态。
+
+```rust
+fn toggle_state(
+  mut next_state: ResMut<NextState<AppState>>,
+  current_state: Res<State<AppState>>,
+  input: Res<ButtonInput<KeyCode>>,
+) {
+  if input.just_pressed(KeyCode::Escape) {
+    //按键按下时，设置新状态
+    next_state.set(AppState::MainMenu);
+  }
+}
+```
+
+​	现在，我们可以更改一下我们的代码，写出一个简单的按键控制状态系统。注意到我们使用了`run_if`和`in_state`来动态的判断并运行不同系统。现在当你按下空格前，程序将只会打印From set one的两条消息，当你按下空格后，程序则只会打印From set two的两条消息。
+
+```rust
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .init_state::<MyState>()
+        .add_systems(
+            Update,
+            (hello_world_from_set_one, hello_bevy_from_set_one)
+                .chain()
+                .in_set(MySystemSet::SetOne)
+          			//利用run_if方法和state动态判断是否应该执行这些systems
+                .run_if(in_state(MyState::StateOne)),
+        )
+        .add_systems(
+            Update,
+            (hello_world_from_set_two, hello_bevy_from_set_two)
+                .chain()
+                .in_set(MySystemSet::SetTwo)
+          			//利用run_if方法和state动态判断是否应该执行这些systems
+                .run_if(in_state(MyState::StateTwo)),
+        )
+        .add_systems(Update, change_state)
+        .configure_sets(Update, (MySystemSet::SetTwo, MySystemSet::SetOne).chain())
+        .run();
+}
+
+fn change_state(
+    input: Res<ButtonInput<KeyCode>>,
+    state: Res<State<MyState>>,
+    mut next_set: ResMut<NextState<MyState>>,
+) {
+    if input.just_pressed(KeyCode::Space) {
+      	//按键按下时检测当前的状态，并更改为另一状态
+        match state.get() {
+            MyState::StateOne => next_set.set(MyState::StateTwo),
+            MyState::StateTwo => next_set.set(MyState::StateOne),
+        }
+    }
+}
+
+```
+
+​	除了使用`run_if`和`in_state`的方式，实际上Bevy还提供了`OnEnter`和`OnExit`两个特殊的调度器，这种方式类似于守卫模式，在进入和离开某个状态时将会各进入该调度一次。利用这两个调度，我们可以在状态转换时执行一些特定的系统，但是需要注意的是，**这个调度只会在转换时调用其中的函数一次，而`run_if`和`in_state`不会这样**。例如在`App`上使用下面这些代码，这些函数只会在按下空格键时执行一次。
+
+```rust
+add_systems(OnEnter(MyState::StateOne), || {
+    println!("Entered State One");
+})
+add_systems(OnEnter(MyState::StateOne), || {
+    println!("Entered State Two");
+})
+```
 
 ## 2.4 Query
 
