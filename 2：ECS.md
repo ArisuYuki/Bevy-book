@@ -256,6 +256,8 @@ commands.entity(player).get::<Health>().unwrap();
 
 ​	以上的方式通过在编译时生成必须组件，当我们在运行时需要指定必须组件时，可以调用`World`上的`register_required_components`或`register_required_components_with`方法，具体的使用方式可以查询Bevy文档即可，这里不再赘述。
 
+### 2.2.4 常用组件
+
 ## 2.3 System
 
 ### 2.3.1 System Order
@@ -439,9 +441,201 @@ add_systems(OnEnter(MyState::StateOne), || {
 })
 ```
 
+### 2.3.4  自定义系统参数
+
+​	在前面定义系统时，我们直接将参数作为系统函数的参数，这样做固然方便，但当系统的参数越来越多时会导致我们的参数越来越多也越来越复杂，如果我们能够将其参数单独定义成一个结构体，那么就能将其分离。
+
+​	利用指令`SystemParam`来让Bevy为我们自动实现结构体的`SystemParam`特型，这样我们就可以将原来的多个参数转移到结构体中，并使用结构体作为我们的参数。不过，当我们这样做时必须指定正确的生命周期，具体的生命周期类型，可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy/ecs/system/trait.SystemParam.html)。
+
+```rust
+// 使用指令SystemParam来自动实现SystemParam trait
+#[derive(SystemParam)]
+struct PlayerCounter<'w, 's> {
+    players: Query<'w, 's, &'static Player>,
+    count: ResMut<'w, PlayerCount>,
+}
+impl<'w, 's> PlayerCounter<'w, 's> {
+    fn count(&mut self) {
+        self.count.0 = self.players.iter().len();
+    }
+}
+
+/// 在系统中我们可以直接使用该结构体作为查询参数
+fn count_players(mut counter: PlayerCounter) {
+    counter.count();
+    println!("{} players in the game", counter.count.0);
+}
+
+
+```
+
+
+
 ## 2.4 Query
 
+### 2.4.1 QueryData
 
+​	查看`Query`的定义，可以发现其有两个参数，`QueryData`和`QueryFilter`。
+
+​	`QueryData`是查询获取的数据类型，将作为查询项返回。只有与请求数据匹配的实体才会生成查询项。
+​	`QueryFilter`是一组可选条件，用于确定查询项应保留还是丢弃。默认值为unit，表示不会应用其他过滤器。
+
+```rust
+pub struct Query<'world, 'state, D, F = ()>where
+    D: QueryData,
+    F: QueryFilter,
+{ /* private fields */ }
+```
+
+​	对于可变和不可变引用的获取，必须在`QueryData`中指定类型，这是为了使Bevy能够在查询不可变组件时尽可能的并行。另外，这两个泛型参数既可以是单个结构，也可以是一个元组，这意味着我们可以写出这样的代码来一次性查询实体上的多个组件。
+
+```rust
+// 获取一个组件的共享引用
+fn immutable_query(query: Query<&ComponentA>) {
+    // ...
+}
+
+// 获取一个组件的可变引用
+fn mutable_query(query: Query<&mut ComponentA>) {
+    // ...
+}
+
+// 获取同时拥有组件ComponentA和Player的实体上的这两个组件的引用
+fn multiple_query(query: Query<(&mut ComponentA,Player)>) {
+    // ...
+}
+```
+
+​	Query返回的类型是一个**迭代器**，如果想要真正修改这些组件，我们就必须遍历其中的内容。除了使用常见的for循环，Query上还提供了很多便利的方法来获取其内容。
+
+```rust
+fn multiple_query(query: Query<(&mut ComponentA,Player)>) {
+  for a,player in &query{
+      ....
+	}
+}
+```
+
+​	在很多情况下，我们还需要进行更细力度的查询，类似“最少有一个”、“仅一个”、“0或1个”这样的数量判断，**如果不满足这些约束，则跳过我们的系统逻辑**。`Query`类型上有一些方法，能够方便我们判断这些情况。这些方法如下，具体的参数和使用方法读者可查阅[文档](https://doc.qu1x.dev/bevy_trackball/bevy/ecs/prelude/struct.Query.html)
+
+| 方法                | 描述                                    |
+| :------------------ | :-------------------------------------- |
+| `iter`              | 返回所有项目的迭代器                    |
+| `for_each`          | 为每个项目并行运行给定的函数            |
+| `iter_many`         | 对与实体列表匹配的每个项目运行给定函数  |
+| `iter_combinations` | 返回指定数量项目的所有组合的迭代器      |
+| `par_iter`          | 返回并行迭代器                          |
+| `get`               | 返回给定实体的查询项                    |
+| `get_component<T>`  | 返回给定实体的组件                      |
+| `many`              | 返回给定实体列表的查询项                |
+| `get_single`        | 安全版本`single`返回`Result<T>`         |
+| `single`            | 返回查询项，如果还有其他则会导致`panic` |
+| `is_empty`          | 如果查询为空，则返回 `true`             |
+| `contains`          | 如果查询包含给定实体，则返回 `true`     |
+
+​	不过，Bevy直接为我们提供了一些`Query`的变体，能为我们方便的进行这样的查询。这些变体包括：
+
+- `Single`： 恰好有一个匹配的查询项。
+- `Option<Single>`： 零个或一个匹配的查询项。
+- `Populated`：至少有一个匹配的查询项。
+
+```rust
+// 使用Single时不再需要便利查询
+fn hurt_boss(mut boss: Single<&mut Boss>) {
+   boss.health -= 4.0;
+}
+// 使用Option时返回的是一个Option
+fn hurt_boss(boss: Option<Single<&mut Boss>>) {
+   match boss{
+     Some(boss)=>{//...},
+     None=>{//...}
+  }
+}
+// Populated则需要迭代处理
+fn hurt_boss(boss: Populated<&mut Boss>) {
+  for boss in &boss{
+	//...
+  }
+}
+```
+
+​	当简单的组合不能描述我们想要的查询时，Bevy还提供了一些便捷的类型能够使得我们的查询更容易编写。这些类型包括：
+
+| 类型        | 作用                                                         |
+| :---------- | :----------------------------------------------------------- |
+| `Entity`    | 获得查询得到的实体，实体只是一个数字，不需要引用。           |
+| `Option<F>` | 查询可能为`None`。                                           |
+| `AnyOf<T>`  | 指定多个组件，只需要满足这些组件里的任一即可。相当于`Option`的简便方法。 |
+| `Ref<T>`    | 获得共享引用，与直接使用&不同的是，**这个类型还拥有一些特殊的方法用于检测组件的内容是否发生变化**。 |
+
+```rust
+// 获得Entity后，我们可以利用command来更改实体上的组件
+fn change_entity(mut command:Command,query:Query<(Entity,Player)>){
+  let entity_commands = commands.entity(entity);
+  //...
+}
+
+// Option相当于查询的“或”运算
+fn query_a_or_b(
+  query: Query<(Option<&A>, Option<&B>)>,
+) {
+  for (a, b) in &query {
+    if let Some(a) = a {
+			//...
+    }
+    if let Some(b) = b {
+			//...
+    }
+  }
+}
+
+// 使用Ref获得组件后，其上拥有一些特殊的方法（is_added、is_changed、changed_by）可以用来在组件改变时执行额外的逻辑
+fn change_detect(query: Query<Ref<Player>>) {
+  for player in &query {
+    if player.is_added() {
+      // ...
+    }
+    if player.is_changed(){
+			//...
+    }
+    // changed_by仅用于调试，将打印一些有用的信息帮助调试
+    println(component.changed_by())
+  }
+}
+
+```
+
+### 2.4.2 QueryFilter
+
+​	在前面，我们只使用了`QueryData`进行查询，如果你细心，你可以发现在查询时虽然我们指定了一些组件，但是这些组件仅用于标识一些实体，而在实际获得后我们并不需要这些组件，也就是说，这些组件仅用于查询过滤条件。
+
+​	利用Query的第二个泛型参数`QueryFilter`，我们可以将其分离开来，其同样支持以元组的形式指定多个条件，并且具有很多的便捷类型能够使得我们的查询更容易编写，这些类型包括：
+
+| 类型         | 含义                                             |
+| ------------ | ------------------------------------------------ |
+| `With<T>`    | 查询的实体上应该具有组件T                        |
+| `Without<T>` | 查询的实体上不应具有组件T                        |
+| `Or<T>`      | 相当于或运算，指定多组过滤条件，满足其中一个即可 |
+| `Changed<T>` | 实体必须有该组件，且该组件在这帧中被更改         |
+| `Added<T>`   | 实体在这帧中添加了该组件                         |
+
+​	我们仅介绍一下`Changed`类型，此过滤器的常见用途是避免值未改变时的冗余工作。就性能和效果而言，以下的两个系统是大致等价的。
+
+```rust
+fn system1(q: Query<&MyComponent, Changed<Transform>>) {
+    for item in &q { /* component changed */ }
+}
+
+fn system2(q: Query<(&MyComponent, Ref<Transform>)>) {
+    for item in &q {
+        if item.1.is_changed() { /* component changed */ }
+    }
+}
+```
+
+### 2.4.3 自定义查询参数
+
+​	Bevy虽然有强大的查询系统，不过当查询需要的条件越来越多时就会出现一些不可避免的问题。由于Rust的限制，最多只能存在15个参数，虽然我们可以对元组进行嵌套来解决这个问题，不过如果我们能够定义自己的查询类型，那么我们的代码就能够漂亮的多。该部分内容读者可查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy/ecs/query/trait.QueryData.html)，Bevy对此已有详细的说明。
 
 ## 2.6 Schedule
 
