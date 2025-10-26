@@ -408,6 +408,9 @@ impl AssetLoader for LasLoader {
       let mut bin_data = Vec::new();
       reader.read_to_end(&mut bin_data).await?;
       //在这里编写真正加载数据的逻辑
+      //let points = ..... 
+      //然后返回一个资产
+      Ok(PointCloud { points })
   }
 ```
 
@@ -420,6 +423,7 @@ fn main() {
   	//通过这两个方法注册相应的加载器和资产类型
     .init_asset_loader::<LasLoader>()
     .init_asset::<PointCloud>()
+    .add_systems(Startup, load_pointcloud)
     .run();
 }
 
