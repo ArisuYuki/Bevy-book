@@ -258,6 +258,32 @@ commands.entity(player).get::<Health>().unwrap();
 
 ### 2.2.4 常用组件
 
+​	Bevy为我们内置了一些常用的组件，这些组件提供了最基础的功能用于控制一些最基本的实体行为，我们将介绍一些常用的基本组件。
+
+​	`Transform`是一个最常用的组件之一，用于控制实体的变换，其定义如下，包含最基本的平移、旋转、缩放。值得一提的是，**`Transform`是实体相对于其父位置的位置，如果没有ChildOf组件，则为参考框架，如果不想受到父实体的影响，可以使用`GlobalTransform`组件。**这些组件运行在`PostUpdate`调度中，因此改变后下一帧才会发生变化，不过在多数时候这都是不那么重要的。
+
+```rust
+pub struct Transform {
+    pub translation: Vec3,
+    pub rotation: Quat,
+    pub scale: Vec3,
+}
+```
+
+​	`Transform`拥有很多方便的工厂函数和方法，这些函数包括[from_xyz](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Transform.html#method.from_xyz)，[from_matrix](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Transform.html#method.from_matrix)， [from_rotation](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Transform.html#method.from_rotation)，[looking_at](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Transform.html#method.looking_at)，[with_translation](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Transform.html#method.with_translation)等等等等。其作用是不言而喻的，具体的使用方法读者可以查看文档。
+
+​	`Visibility`组件用于告诉相机某实体是否可见，其定义如下，该可见性同样会影响到子实体。
+
+```rust
+pub enum Visibility {
+    Inherited,
+    Hidden,
+    Visible,
+}
+```
+
+​	剩余的还有一些相机、灯光等组件，我们将在后续的章节中的合适位置再介绍。
+
 ## 2.3 System
 
 ### 2.3.1 System Order
@@ -302,6 +328,33 @@ add_systems(Update, (hello_bevy,hello_world).chain());
 ```
 
 ​	这些方法在名为[`IntoScheduleConfigs`](https://doc.qu1x.dev/bevy_trackball/bevy/prelude/trait.IntoScheduleConfigs.html#method.after)的特型上，还有一些其他的方便方法，读者可以自己查看相关文档，这里不再赘述。如果你查看过`add_systems`的签名，你会发现其第二个参数的类型就是实现了这个特型的泛型参数。Bevy为元组、函数等都实现了这个特型，这使得我们能够在函数上调用这些方法（他们本来不存在于这些类型上）。
+
+​	解决了相互并行的系统之间的顺序，还剩下一个问题：**如何串行各个系统，使得系统的处理结果可以从前往后传递，像管道一样运行呢？**
+
+​	既然提到了管道，Bevy也在系统特型为我们提供了一个`pipe`方法，通过`pipe`和特殊的`In`参数，我们可以做到这些。
+
+```rust
+// 从这个系统中我们可以返回一些消息传递给下一个系统
+fn parse_message_system(message: Res<Message>) -> Result<usize, ParseIntError> {
+    message.parse::<usize>()
+}
+
+// 特殊的In参数类型用于告诉Bevy该参数是从上个系统接收的返回值
+fn handler_system(In(result): In<Result<usize, ParseIntError>>) {
+    match result {
+        Ok(value) => println!("parsed message: {value}"),
+        Err(err) => println!("encountered an error: {err:?}"),
+    }
+}
+
+//使用pipe方法，可以将这些系统组合到的一起
+parse_message_system.pipe(handler_system)
+
+//还有一种方法可以像使用迭代器一样组合这些系统
+parse_message_system.map(|out|{handler_system(out)})
+```
+
+
 
 ### 2.3.2 System Set
 
@@ -636,10 +689,4 @@ fn system2(q: Query<(&MyComponent, Ref<Transform>)>) {
 ### 2.4.3 自定义查询参数
 
 ​	Bevy虽然有强大的查询系统，不过当查询需要的条件越来越多时就会出现一些不可避免的问题。由于Rust的限制，最多只能存在15个参数，虽然我们可以对元组进行嵌套来解决这个问题，不过如果我们能够定义自己的查询类型，那么我们的代码就能够漂亮的多。该部分内容读者可查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy/ecs/query/trait.QueryData.html)，Bevy对此已有详细的说明。
-
-## 2.6 Schedule
-
-
-
-## 2.5 World与Command
 
