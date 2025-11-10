@@ -112,25 +112,4 @@ let shader = asset_server.load::<Shader>("embedded://bevy_rock/render/rock.wgsl"
 
 ​	在Bevy 0.12之前，你可能会看到名为`load_internal_asset!`的宏，该宏的作用和上面是一样的，不过目前已经被`embedded_asset!`取代，因此不建议继续使用。
 
-## 4.2 跟踪加载进度
-
-​	复习一下在第一章中我们介绍的使用资产的方法，我们可以使用资产的句柄和`asset_server`来轮询资产的加载状态。
-
-```rust
-fn on_asset_event(
-  mut commands: Commands,
-  asset_server: Res<AssetServer>,
-  share_image: Res<ShareImage>,
-) {
-  match asset_server.get_load_state(&share_image.handle) {
-    Some(LoadState::NotLoaded) => {}
-    Some(LoadState::Loading) => {}
-    Some(LoadState::Loaded) => {
-      //在这里使用handle，这时已经加载完成
-    }
-}
-```
-
-​	
-
-## 4.2 Mesh与StandardMaterial
+## 4.2 资产使用
