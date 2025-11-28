@@ -111,5 +111,3 @@ let shader = asset_server.load::<Shader>("embedded://bevy_rock/render/rock.wgsl"
 ```
 
 ​	在Bevy 0.12之前，你可能会看到名为`load_internal_asset!`的宏，该宏的作用和上面是一样的，不过目前已经被`embedded_asset!`取代，因此不建议继续使用。
-
-## 4.2 资产使用

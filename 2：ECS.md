@@ -354,9 +354,24 @@ parse_message_system.pipe(handler_system)
 parse_message_system.map(|out|{handler_system(out)})
 ```
 
+### 2.3.2 run_if
 
+​	很多时候，你可能想要按照某些条件来动态的决定系统是否运行，Bevy为我们提供了`run_if`方法来做到这件事。
 
-### 2.3.2 System Set
+​	`run_if`需要一个函数，该函数需要**返回一个返回`bool`类型的闭包，并且该闭包也可以像一个system一样接受各种参数，Bevy将会自动注册这些参数**，在游戏的每个循环里，这个闭包将会被运行。当闭包返回true时，系统就会运行。
+
+```rust
+//run_if里也可以写如条件，使用and或者or的方式来连接
+some_system.run_if(
+  resource_exists::<InputCounter>.and(
+    |counter: Res<InputCounter>| counter.is_changed() && !counter.is_added()
+  )
+)
+```
+
+​	同时，Bevy也为我们提供了一些常用的判断条件，这些条件函数将在以后的章节中依次介绍，与ECS系统相关的条件函数可以在[文档](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/index.html)里的Functions部分下找到。
+
+### 2.3.3 System Set
 
 ​	当我们的系统越来越多时，如何管理和有条件的运行一批系统是至关重要的，例如我们希望用户在游戏中按下某个按键之后只运行系统的UI设置系统来渲染页面，而暂停游戏的逻辑。我们该如何有条件的运行和管理系统呢？Bevy中引入了`SystemSet`的概念，通过`SystemSet`我们可以将系统的运行阶段进行划分以更好的分组控制。
 
@@ -403,7 +418,7 @@ Hello, world! From set one
 Hello, Bevy! From set one
 ```
 
-### 2.3.3 State
+### 2.3.4 State
 
 ​	有了`SystemSet`我们可以对系统的运行阶段进行划分和分组，但是如何才能真正做到对系统运行阶段的控制呢？例如我们想要按下`ESC`键后能够暂停游戏逻辑的系统，而打开UI绘制和设置的系统，我们应该怎么做呢？这就要使用`State`来控制系统的状态。
 
@@ -494,7 +509,7 @@ add_systems(OnEnter(MyState::StateOne), || {
 })
 ```
 
-### 2.3.4  自定义系统参数
+### 2.3.5  自定义系统参数
 
 ​	在前面定义系统时，我们直接将参数作为系统函数的参数，这样做固然方便，但当系统的参数越来越多时会导致我们的参数越来越多也越来越复杂，如果我们能够将其参数单独定义成一个结构体，那么就能将其分离。
 

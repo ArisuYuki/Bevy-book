@@ -45,15 +45,13 @@ Res<ButtonInput<B>> //用于查询键盘或者鼠标的状态
 
 ## 3.2 Resource的其他用法
 
-​	`Resource`的功能虽然简单，但是能实现的功能是相当强大的。这里，我们将介绍几个利用`Resource`可以方便实现的事。
+### 3.2.1 run_if与Resource
 
-​	在第二章中的`State`一节中，我们利用不同的`State`和`run_if`方法来动态的决定某些系统的运行，但当我们需要根据更复杂的逻辑来实现动态决定系统的运行状态时，我们该怎么做？
-
-​	`run_if`方法可以接受一个可有查询参数的返回布尔类型的闭包作为参数，这意味着我们可以利用查询系统来结合`Resource`进行判断，就像下面这样。通过这种方法，可以结合各种`Resource`来动态的决定系统的运行状态。
+​	`run_if`可以利用查询系统来结合`Resource`进行判断，就像下面这样。通过这种方法，可以结合各种`Resource`来动态的决定系统的运行状态。
 
 ```rust
 some_system
 	.run_if(|counter: Res<InputCounter>| counter.is_changed() && !counter.is_added())
 ```
 
-​	
+​	Bevy里还为我们提供了一组与`Resource`相关的conditions，这些可以在[文档](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/index.html)里的Functions部分下找到，这些条件包括：[resource_added](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_added.html)、[resource_changed](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_changed.html)、[resource_exists](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_exists.html)等等等等
