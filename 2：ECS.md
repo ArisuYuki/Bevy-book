@@ -509,7 +509,7 @@ add_systems(OnEnter(MyState::StateOne), || {
 })
 ```
 
-### 2.3.5  自定义系统参数
+### 2.3.5  SystemParam
 
 ​	在前面定义系统时，我们直接将参数作为系统函数的参数，这样做固然方便，但当系统的参数越来越多时会导致我们的参数越来越多也越来越复杂，如果我们能够将其参数单独定义成一个结构体，那么就能将其分离。
 
@@ -536,8 +536,6 @@ fn count_players(mut counter: PlayerCounter) {
 
 
 ```
-
-
 
 ## 2.4 Query
 
@@ -705,3 +703,252 @@ fn system2(q: Query<(&MyComponent, Ref<Transform>)>) {
 
 ​	Bevy虽然有强大的查询系统，不过当查询需要的条件越来越多时就会出现一些不可避免的问题。由于Rust的限制，最多只能存在15个参数，虽然我们可以对元组进行嵌套来解决这个问题，不过如果我们能够定义自己的查询类型，那么我们的代码就能够漂亮的多。该部分内容读者可查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy/ecs/query/trait.QueryData.html)，Bevy对此已有详细的说明。
 
+## 2.5  Resource
+
+​	在第一章中写到`Resource`是一个全局单例。用于保存一些在游戏的整个生命周期里都存在的数据，例如游戏设置等。
+
+​	要创建一个`Resource`，只需要使用`Resource`指令即可，然后我们便可以声明一个单例并初始化。
+
+```rust
+#[derive(Resource,Default)]
+struct Setting{
+  source:f32
+};
+
+//在App中直接初始化，在这里我们实现了Default，因此可以只指定类型
+App.insert_resource::<Setting>()
+
+//或者使用commands动态的添加和删除
+fn add_score(mut commands: Commands) {
+  commands.init_resource::<Setting>();
+  //或者我们也可以在这里删除一些资产
+  commands.remove_resource::<Setting>();
+}
+
+```
+
+​	在使用时，只需要在需要使用的系统上使用`Res`或者`ResMut`来指定资源的类型即可。
+
+```rust
+//获得资产的可变引用以便更改
+fn some_system(mut score: ResMut<Score>) 
+//只获得共享引用
+fn some_system(score: Res<Score>) 
+//如果资产可能尚未创建，那么需要使用Option使之变为可选
+fn some_system(mut score: Option<ResMut<Score>>) 
+```
+
+​	除了作为一个可以在系统中共享的数据单例，Bevy中许多功能的实现也都是基于`Resource`来实现的，在前面我们能已经介绍了一部分，这些内容如下。
+
+```rust
+Res<Time> //自应用启动以来的时间，以及上一帧逝去的时间
+Res<Events<E>> //用于访问各种引擎事件
+Res<Assets<T>> // 用于加载静态资产
+Res<Window> //存储主窗口的属性
+Res<ButtonInput<B>> //用于查询键盘或者鼠标的状态
+```
+
+​	`run_if`可以利用查询系统来结合`Resource`进行判断，就像下面这样。通过这种方法，可以结合各种`Resource`来动态的决定系统的运行状态。
+
+```rust
+some_system
+	.run_if(|counter: Res<InputCounter>| counter.is_changed() && !counter.is_added())
+```
+
+​	Bevy里还为我们提供了一组与`Resource`相关的conditions，这些可以在[文档](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/index.html)里的Functions部分下找到，这些条件包括：[resource_added](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_added.html)、[resource_changed](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_changed.html)、[resource_exists](https://docs.rs/bevy/0.17.3/bevy/ecs/prelude/fn.resource_exists.html)等等等等
+
+## 2.6 Message
+
+### 2.6.1 用法回顾
+
+​	在前面，我们曾简单的介绍过如何使用`Message`来在多个系统之间进行消息的传递，其最简单的使用方式如下。我们首先使用`Message`宏定义了消息，然后在App中注册了消息，最后我们使用`MessageWriter`和`MessageReader`来进行消息的发送和读取。
+
+```rust
+//在这里定义消息
+#[derive(Message)]
+struct CustomMessage {
+  //发出事件的实体ID
+  entity: Entity,
+  //其他信息
+  some_infos: f32,
+}
+
+//在app中注册消息
+App::new()
+  .add_message::<CustomMessage>();
+
+fn write_message(
+  mut messages: MessageWriter<CustomMessage>,
+  entity_and_transform: Query<Entity, With<SomeCompoents>>,
+) {
+  for entity in entity_and_transform {
+    // 发送某些信息
+    //...
+    messages.write(CustomMessage{
+      entity,
+      some_infos,
+    });
+  }
+}
+
+fn read_message(mut messages: MessageReader<CustomMessage>) {
+  for message in messages.read() {
+    //对消息做一些处理
+    //...
+  }
+}
+```
+
+### 2.6.2 Message
+
+​	使用`Message`宏会自动为结构体实现`Message` `trait`。实际的消息是存储在一个[`Messages`](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/message/struct.Messages.html)资源中，在bevy_ecs中其实定义如下，其包含两个队列用来存储消息，我们写入的消息就是存储在了这两个队列中。
+
+​	`messages_a`中存储了上一帧中的消息，`messages_b`中存储了当前帧插入的消息。
+
+```rust
+#[derive(Debug, Resource)]
+#[cfg_attr(feature = "bevy_reflect", derive(Reflect), reflect(Resource, Default))]
+pub struct Messages<E: Message> {
+    /// Holds the oldest still active messages.
+    /// Note that `a.start_message_count + a.len()` should always be equal to `messages_b.start_message_count`.
+    pub(crate) messages_a: MessageSequence<E>,
+    /// Holds the newer messages.
+    pub(crate) messages_b: MessageSequence<E>,
+    pub(crate) message_count: usize,
+}
+```
+
+### 2.6.3 MessageWriter
+
+​	`MessageWriter`的实现没有什么神奇的，只是一个包含了`Messages`的`SystemParam`薄薄的包装。在我们使用的时候，消息会被写入其中的`messages`内。
+
+```rust
+#[derive(SystemParam)]
+pub struct MessageWriter<'w, E: Message> {
+    #[system_param(validation_message = "Message not initialized")]
+    messages: ResMut<'w, Messages<E>>,
+}
+```
+
+​		当我们使用`MessageWriter`写入消息时，会调用`messages`上的`write`方法，该方法会将消息写入`messages_b`这个队列中。`MessageWriter`还有一些很有用的方法，这些方法包括[write_default](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/message/struct.MessageWriter.html#method.write_default)和[write_batch](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/message/struct.MessageWriter.html#method.write_batch)，前者可以写入一个空消息，后者可以批量写入消息。
+
+### 2.6.3 MessageReader
+
+​	`MessageReader`的实现也没有什么神奇的，几乎和`MessageWriter`相同，消息会在`messages`内读取。
+
+```rust
+#[derive(SystemParam, Debug)]
+pub struct MessageReader<'w, 's, E: Message> {
+    pub(super) reader: Local<'s, MessageCursor<E>>,
+    #[system_param(validation_message = "Message not initialized")]
+    messages: Res<'w, Messages<E>>,
+}
+```
+
+​	读取消息的实现则相对麻烦，这要借助另外几个结构：`MessageCursor` 、`MessageIterator`、`MessageMutator`等等。简而言之，这些结构帮助我们跟踪记录了每一种消息在队列`messages_a`和`messages_b`中的位置，当我们读取时将会按照顺序依次读取。
+
+​	下一帧的时候将`messages_a`中的消息将被清空，`messages_b`中的消息将会转移到`messages_a`中。这也就是为什么如果**消息如果在下一帧不读取将会被丢弃**的原因。
+
+​	`MessageReader`上也有一些很有用的方法，例如[is_empty](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/message/struct.MessageReader.html#method.is_empty)、[len](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/message/struct.MessageReader.html#method.len)等方法可以帮助我们再不读取消息的情况下做出一些决定。
+
+## 2.7 Event
+
+### 2.7.1 用法回顾
+
+​	基于`Event`模式的事件系统有`Event`与`EntityEvent`两种方式，前者用于全局事件，后者则作用在某个特定的实体上，所以被称为`EntityEvent`。
+
+​	对于前者，其使用方式如下。首先使用`Event`宏注册一个事件，然后在`App`上注册我们的`Observer`，一个`Observer`只是一个特定的函数，其中需要将`On`作为第一个参数的类型以表示逻辑**当<事件类型>发生时**。当我们需要时可以使用`command`触发一个全局事件来调用处理函数响应。
+
+```rust
+#[derive(Event)]
+struct ReturnToTitle;
+
+
+// 触发一个全局的广播事件
+commands.trigger(ReturnToTitle)
+
+
+fn on_return_to_title(
+  event: On<ReturnToTitle>,
+) {
+  //做一些全局的工作
+}
+
+fn main() {
+  //在这里注册全局的观察者
+  App::new().add_plugins(DefaultPlugins).add_observer(on_respawn);
+}
+```
+
+​	对于后者，其基本步骤是相同的，不过我们的`Observer`这时需要直接绑定到实体上。
+
+```rust
+
+#[derive(EntityEvent)]
+struct PlayerKilled {
+  entity: Entity
+}
+
+// 出发某个特定实体上的事件
+commands.trigger(PlayerKilled { entity })
+
+fn on_player_Killed(
+  event: On<PlayerKilled>,
+  query: Query<&Player>,
+) {
+  if let Ok(player) = query.get(event.entity) {
+    //在这里可以处理一些数据
+  }
+}
+
+fn set_up(mut commands: Commands) {
+  //在这里注册监听器
+  commands.spawn(Player::default()).observe(on_player_Killed);
+}
+```
+
+## 2.8 World
+
+​	`World`本身其实没有什么要介绍的，但是`World`的概念却是无处不在的。简而言之，`World`是一个“舞台”，是一个容纳了所有实体、组件与系统的地方。要能使用ecs系统的内容，必须在`World`进行操作。因此我们其实可以把代码写成下面这样。
+
+```rust
+fn main() {
+    let mut world = World::new();
+  	//world.insert_resource(...)
+  	//world.spwan(...)
+  	//.....
+}
+```
+
+​	现在我们可以说，一个`App`就是对`World`做了一层包装，我们在`App`上调用的很多方法，其实是调用的`World`上的方法。但是，**`World`只提供了这些与ecs相关的方法，没有提供游戏循环、时间管理、插件等等，这些其实是在App上提供的。**
+
+## 2.9 Schedule
+
+​	一个`schedule`是一个包含了如何对`World`进行调度的结构，简而言之，我们的各个游戏阶段，例如`Update`等，都是一个`schedule`，因此我们可以把代码写成这样。
+
+```rust
+fn hello_world() { println!("Hello world!") }
+
+fn main() {
+    let mut world = World::new();
+    let mut schedule = Schedule::default();
+  	//我们会将system注册在schedule上
+    schedule.add_systems(hello_world);
+  	//调用一次run会运行一次schedule上注册过的系统，因此hello_world只会运行一次
+    schedule.run(&mut world);
+}
+```
+
+​	实际上，这些所有的调度，包括下面这张图内的所有阶段，都是在`App`内注册的，因此我们说，`App`才是提供游戏循环、时间管理、插件的真正实现之处，单纯的`World`能实现的内容是相当有限的。
+
+<img src="./image/chapter1/3.png" alt="3" style="zoom:25%;" />
+
+## 2.10 章节回顾
+
+​	在这一章里，介绍了整个bevy_ecs crate中的主要内容，该部分是bevy能够运行的基石，同时也提供了强大的功能。利用依赖注入和ecs模式，bevy为我们搭建好了整个游戏的基础框架，使得我们不必再花费精力在状态管理和游戏循环以及并发之中。
+
+> [!NOTE]
+>
+> 其实利用bevy_app、bevy_ecs、bevy_time三个crate，就能实现一个最基本的应用程序框架，有时候这是非常有用的。
+>
+> 例如你想编写一个没有窗口但是又不停运行的系统，但是又不想使用while和状态机来进行麻烦的状态管理，那么使用这三个crate就能解决你的问题。
