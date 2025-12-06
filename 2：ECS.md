@@ -537,6 +537,14 @@ fn count_players(mut counter: PlayerCounter) {
 
 ```
 
+​	有时候，我们在system中不想修改原来的`SystemParam`，我们只是需要一份副本来执行某些操作，我们该怎么办呢？这时我们可以利用`Local`来修饰查询，这样bevy会为我们提供一个完整的副本，在副本上进行所有的操作都不会影响查询系统中的`SystemParam`。
+
+```rust
+fn count_players(mut counter: Local<PlayerCounter>) {
+    //现在counter是一份完整的部分，我们修改这里的counter不会影响其他系统得到的counter
+}
+```
+
 ## 2.4 Query
 
 ### 2.4.1 QueryData
@@ -876,20 +884,25 @@ fn on_return_to_title(
 
 fn main() {
   //在这里注册全局的观察者
-  App::new().add_plugins(DefaultPlugins).add_observer(on_respawn);
+  App::new().add_plugins(DefaultPlugins).add_observer(on_return_to_title);
 }
 ```
 
-​	对于后者，其基本步骤是相同的，不过我们的`Observer`这时需要直接绑定到实体上。
+​	对于后者，其基本步骤是相同的，不过我们的`Observer`这时需要直接绑定到实体上，而且`PlayerKilled`中**要有一个`Entity`类型的`entity`字段，用来指定触发的事件是哪个实体。或者，由我们利用#[event_target]手动指定。**
+
+​	值得一提的是，如果我们在`App`上通过`add_observer`也注册了一个处理`PlayerKilled`事件的函数，那么即使我们指定了触发的实体，这个函数也会运行，这是因为其底层使用的是和`Event`相同的触发器。
 
 ```rust
-
 #[derive(EntityEvent)]
 struct PlayerKilled {
+  //一个Entity类型的entity字段作为目标实体
   entity: Entity
+  //手动指定
+  //#[event_target]
+  //exploded_entity: Entity,
 }
 
-// 出发某个特定实体上的事件
+// 触发某个特定实体上的事件
 commands.trigger(PlayerKilled { entity })
 
 fn on_player_Killed(
@@ -905,7 +918,95 @@ fn set_up(mut commands: Commands) {
   //在这里注册监听器
   commands.spawn(Player::default()).observe(on_player_Killed);
 }
+
+
 ```
+
+### 2.7.2 lifecycle
+
+​	在很多时候，Bevy会自动触发一些事件，这些事件被称为**生命周期**事件，包括实体上的组件被添加、删除、修改等，如果需要对某些特定的内置事件进行响应，那么可以使用`Event`，具体的示例如下，其中`On`的第一个参数是事件的类型，二个参数是具体的`Bundle`。如果要查看更详细的信息可以查看[文档](https://docs.rs/bevy_ecs/0.17.3/bevy_ecs/lifecycle/index.html)。
+
+```rust
+use bevy::prelude::*;
+
+
+App::new()
+    // 添加观察器
+    .add_observer(react_on_removal)
+
+fn react_on_removal(remove: On<Remove, MyComponent>) {
+    //....
+}
+```
+
+​	除了上面这种方法，还可以直接在`World`上对某个组件注册相应的处理函数，这些函数称为生命周期钩子（Hook），就像下面这样。这些钩子可以接受一个`HookContext`类型的参数，其中包含了发出这个事件的实体，组件的ID等。
+
+```rust
+fn setup(world: &mut World) {
+    world
+        .register_component_hooks::<MyComponent>()
+        .on_add(
+            |mut world,
+             HookContext {
+                 entity,
+                 component_id,
+                 caller,
+                 ..
+             }| {
+							//..
+            },
+        )
+  			//同样，我们也可以注册on_insert或on_remove等更多的钩子
+        //.on_insert()
+        //.on_remove();
+
+```
+
+### 2.7.3 propagate
+
+​	在介绍`Relationship`的时候，我们曾讲过，子实体会继承父实体的一些组件。而当子实体和父实体都对同样`EntityEvent`注册了`observer`的时候，**事件将会以冒泡的形式，先在子实体上触发，然后再交给父实体**，而且子实体对事件的信息做出更改后，父实体将得到被修改的事件结构体。
+
+```rust
+//假设我们注册了一个父实体和三个子实体
+commands
+    .spawn((Name::new("Goblin"), HitPoints(50)))
+    .observe(take_damage)
+    .with_children(|parent| {
+        parent
+            .spawn((Name::new("Helmet"), Armor(5)))
+            .observe(block_attack);
+        parent
+            .spawn((Name::new("Socks"), Armor(10)))
+            .observe(block_attack);
+        parent
+            .spawn((Name::new("Shirt"), Armor(15)))
+            .observe(block_attack);
+    });
+
+
+//为子实体注册observer
+fn block_attack(mut attack: On<Attack>) {
+    //对attack可以做出一些更改，例如被成功防御时设置attack.damage = 0;
+  	//或者，我们可以阻止冒泡，调用attack.propagate(false);
+}
+
+//为父实体注册observer
+fn take_damage(
+    attack: On<Attack>,
+) {
+	//读取attack做一些处理，这时的attack中的内容是block_attack处理之后的
+}
+```
+
+### 2.7.4 Event还是Message
+
+​	之前我们对选择`Event`还是`Message`进行过一些简短的讨论，现在我们可以好好的说一下这件事了。
+
+​	`Event`的消息处理是即时的、广播的、无序的、冒泡的。这意味着你的`Event`可以被多个`observer`同时响应，而且你无法决定他们的响应顺序，而且可以在子实体和父实体之间进行冒泡，这是很有用的。
+
+​	`Message`的消息处理是最多延迟一帧的、专一的、有序的、不能冒泡的、有缓冲的。这意味着一般`Message`的消息只能被读取一次，然后下一帧就会被丢弃，而且多个系统读取到的`Message`是不一样的，读取的顺序是发出者发出的顺序。
+
+​	明白了二者的区别，那么当你需要选择的时候就很明显了。如果你的需求和实体关系密切，需要精确的定位到某个特定的实体上并且不关心顺序，需要冒泡处理，那么就是`Event`，否则就是`Message`。
 
 ## 2.8 World
 
@@ -946,6 +1047,8 @@ fn main() {
 ## 2.10 章节回顾
 
 ​	在这一章里，介绍了整个bevy_ecs crate中的主要内容，该部分是bevy能够运行的基石，同时也提供了强大的功能。利用依赖注入和ecs模式，bevy为我们搭建好了整个游戏的基础框架，使得我们不必再花费精力在状态管理和游戏循环以及并发之中。
+
+​	阅读完这些内容，你现在应该已经能够看懂bevy储存库下example中的相当多内容了。虽然我们没有对ecs进行全面的细节介绍，但是通过这些介绍，你也应该能够自己自主探索剩下的内容了。仔细阅读example下的ecs示例，你会有新的收获。
 
 > [!NOTE]
 >
