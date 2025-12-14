@@ -2,7 +2,7 @@
 
 ​	资产是需要加载到游戏中的资源，通常来自于各种硬盘里的文件，例如图像、模型、材质、字体、音频等等等等。由于这些资源的加载往往需要耗费大量时间，因此Bevy里这些资产的加载往往都是以异步的形式以避免阻塞游戏循环。在Bevy中，我们可以使用`AssetServer`从硬盘里加载资产，使用`Assets<T>`来存储已经加载的各类资产。
 
-​	与资产相关的内容主要在bevy_asset这个crate中，要使用这些内容，**必须在App上调用其中的[AssetPlugin](https://docs.rs/bevy_asset/0.17.3/bevy_asset/struct.AssetPlugin.html)这个插件才能访问`AssetServer`、`Assets`等类型，不过该插件已经在DefaultPlugin内，不需要我们再手动安装。**
+​	与资产相关的内容主要在bevy_asset这个crate中，要使用这些内容，**必须在App上调用其中的[AssetPlugin](https://docs.rs/bevy_asset/0.17.3/bevy_asset/struct.AssetPlugin.html)这个插件才能访问`AssetServer`、`Assets`等类型，这个插件还提供了一些额外的设置，例如指定模式和路径等，该插件已经在DefaultPlugin内，不需要我们再手动安装。**
 
 ​	与Asset相关的类型和结构很多，不过大多数时候我们都不需要和他们打交道，如果仅仅是使用，我们只需要和`AssetServer`还有`Assets<T>`接触就足够了。
 
@@ -144,7 +144,7 @@ fn load_pointcloud(
 }
 ```
 
-## 4.2 资产加载与保存
+## 4.2 资产加载流程
 
 ​	在 Bevy 引擎中，`AssetReader`、`AssetLoader`、`AssetSaver` 和 `AssetWriter` 都是资产系统的重要组成部分，它们各自承担着不同的职责。
 
@@ -210,13 +210,15 @@ impl AssetLoader for LasLoader {
 
 ​	`AssetReader`和`AssetLoader`都用于资产的加载，但是他们负责的层级是完全不同的。**`AssetReader`为不同的平台提供了一个统一的、异步的加载方式，使得我们的游戏能够在每个平台上以相同的方式读取资产；而`AssetLoader`负责将数据解析成正确的格式，以供程序的正确使用。**
 
-​	大多数情况下，我们可以直接使用内置的`AssetReader`不需要对其进行自定义，但如果你需要在这个环节进行一些操作，那么Bevy也提供了相应的方法。详细的细节可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/io/trait.AssetReader.html#tymethod.read)和[示例](https://github.com/bevyengine/bevy/blob/main/examples/asset/custom_asset_reader.rs)。
+​	大多数情况下，我们可以直接使用内置的`AssetReader`不需要对其进行自定义，但如果你需要在这个环节进行一些操作，那么Bevy也提供了相应的方法让我们能够重写我们自己的`Reader`。详细的细节可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/io/trait.AssetReader.html#tymethod.read)和[示例](https://github.com/bevyengine/bevy/blob/main/examples/asset/custom_asset_reader.rs)。
 
 ### 4.2.3 AssetSaver与AssetWriter
 
 ​	理解了`AssetReader`与`AssetLoader`的关系，我们可以猜到应该还有两个用于保存资产到本地的类型，这些类型就是`AssetWriter`与`AssetSaver`，他们的关系是类似的：`AssetWriter`提供了一个统一的、异步的写入方式，将我们的资产写入到文件系统中，而`AssetSaver`则负责将数据转换成需要保存的格式。二者的具体使用方法可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/saver/trait.AssetSaver.html)，需要为`AssetSaver`实现一个`save`方法，该方法和`load`非常相似，这里不再赘述。
 
-### 4.2.4 Embedded Asset 与Internal Asset
+## 4.3 资产加载
+
+### 4.3.1 内嵌资产
 
 ​	有些时候，我们希望将资产打包进入二进制程序中，然后在程序中直接读取这些资产而不是从硬盘里加载。例如，我们可能编写了一些wgsl着色器而又不想将这些代码作为文件存储在磁盘里，这时就需要将其直接内嵌在二进制的程序中，不过我们会需要一些额外的手段来告诉Bevy如何读取这些内嵌的资源。
 
@@ -236,7 +238,7 @@ bevy_rock
 
 ​	在render目录下的mod.rs中，我们可以编写一个插件，然后这样使用`embedded_asset!`宏和`load_embedded_asset!`宏。当使用宏加载后，文件将会位于一个虚拟的目录下，在这里是`embedded://bevy_rock/render/rock.wgsl`（注意到src路径已经被删除）。其中前面的`embedded`被称为`AssetSourceId`，每一类`AssetSourceId`都映射着对应的`AssetReader`和`AssetWriter`（从程序中之间内嵌的数据读取方式和从磁盘的读取方式不同，所以需要保留这个信息告诉Bevy正确的读取方式）。
 
-​	我们还可以利用`app`上的`register_asset_source`方法注册自己的`AssetSourceId`，将其绑定到某些文件夹以便在加载资产时通过前戳来快速访问资产，详细的方法可以参考[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/trait.AssetApp.html#tymethod.register_asset_source)，这里不再赘述。
+​	我们还可以利用`app`上的`register_asset_source`方法注册自己的`AssetSourceId`，将其绑定到某些文件夹以便在加载资产时通过前戳来快速访问资产，详细的方法可以参考[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/trait.AssetApp.html#tymethod.register_asset_source)。
 
 ```rust
 //使用两个参数的版本时，第一个参数是app的可变引用，第二个是资产的路径（相对当前目录）
@@ -258,8 +260,66 @@ let shader = asset_server.load::<Shader>("embedded://bevy_rock/render/rock.wgsl"
 
 ​	在Bevy 0.12之前，你可能会看到名为`load_internal_asset!`的宏，该宏的作用和上面是一样的，不过目前已经被`embedded_asset!`取代，因此不建议继续使用。
 
-### 4.2.5 网络资产
+### 4.3.2 web资产
 
-### 
+​	另一类比较特殊的资产就是从web上加载的资产，在网络上加载一些内如，我们需要一点额外的支持：引入`WebAssetPlugin`插件并开启http特征。
 
-## 4.3 资产事件
+```rust
+use bevy::{asset::io::web::WebAssetPlugin, prelude::*};
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins.set(WebAssetPlugin {
+            silence_startup_warning: true,
+        }))
+        .add_systems(Startup, setup)
+        .run();
+}
+```
+
+​	然后我们就可以像使用普通的文件一样，从web的url里加载这些资产了。
+
+```rust
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(Camera2d);
+    let url = "https://raw.githubusercontent.com/bevyengine/bevy/refs/heads/main/assets/branding/bevy_bird_dark.png";
+    commands.spawn(Sprite::from_image(asset_server.load(url)));
+}
+
+```
+
+## 4.4 资产事件
+
+​	资产会在加载的过程中发出一系列Message，如果你需要对这些事件做出一些响应，在bevy中这些事件是一个AssetEvent的枚举类型，可以看到当资产被添加、更改、移除、加载完成时都会发出一些事件，并且在其中保存了对应的资产的ID。
+
+```rust
+pub enum AssetEvent<A: Asset> {
+    Added {
+        id: AssetId<A>,
+    },
+    Modified {
+        id: AssetId<A>,
+    },
+    Removed {
+        id: AssetId<A>,
+    },
+    Unused {
+        id: AssetId<A>,
+    },
+    LoadedWithDependencies {
+        id: AssetId<A>,
+    },
+}
+```
+
+​	要响应这些事件，只需要使用特定的`MessageReader`即可。
+
+```rust
+fn read_message(mut messages: MessageReader<AssetEvent>) {
+  for message in messages.read() {
+    //对消息做一些处理
+    //...
+  }
+}
+```
+
