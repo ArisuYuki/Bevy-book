@@ -1,0 +1,805 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第 5 章：2D 渲染 - Bevy游戏引擎指南</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-85f544ed.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-79a1dbf2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bevy游戏引擎指南</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="51-mesh2d"><a class="header" href="#51-mesh2d">5.1 Mesh2d</a></h2>
+<p>在Bevy中，有 <code>Mesh2d</code>与<code>Mesh3d</code>两种，前者是三角形、矩形、圆形等各种二维形状，后者代表立方体、网格模型等三维物体。<code>Mesh2d</code>与<code>Mesh3d</code>可以像一个普通的组件一样使用，就像下面一样。在这些代码里，我们生成了一个实体，并在其之上添加了一个<code>Mesh2d</code>与对应的<code>MeshMaterial2d</code>。同时，别忘了我们还需要指定一个<code>Camera2d</code>来渲染这些内容。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
+    mut materials: ResMut&lt;Assets&lt;ColorMaterial&gt;&gt;,
+) {
+    commands.spawn(Camera2d);
+
+    commands.spawn((
+        Mesh2d(meshes.add(Rectangle::default())),
+        MeshMaterial2d(materials.add(Color::from(PURPLE))),
+        Transform::default().with_scale(Vec3::splat(128.)),
+    ));
+}
+
+
+<span class="boring">}</span></code></pre>
+<p><code>Mesh</code>代表由点组成的集合，他们可能是一个模型、一条线段、或者只是一些点，Bevy，而<code>ColorMaterial</code>则代表代表这些形状的颜色、材质等。在Bevy中，二者以<code>Assets</code>的形式存在，当使用时，我们应当使用<code>ResMut</code>获得该资源并向其中添加真正的数据类型。在<code>Assets</code>中我们说过，Bevy加载<code>Assets</code>时将返回一个对应的句柄并在后台加载这些数据，因此，创建<code>Mesh2d</code>与<code>MeshMaterial2d</code>组件时，我们传递的也是一个对应的<code>Handler</code>。</p>
+<p>Bevy在bevy_math::primitives中为我们定义好了一组基本的几何形状，这些形状同样在preload中不需要我们再从bevy_math中导入，如上面的<code>Rectangle</code>就是其中的一个形状，这里不再一一赘述，读者可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy_math/primitives/index.html">文档</a>详细了解每种形状的创建方式。</p>
+<h2 id="52-meshmaterial2d"><a class="header" href="#52-meshmaterial2d">5.2 MeshMaterial2d</a></h2>
+<p><code>MeshMaterial2d</code>描述了Bevy应该如何渲染这些形状的具体信息，如果没有<code>MeshMaterial2d</code>只有<code>Mesh2d</code>，那么你会发现窗口上不会渲染任何东西。因此，不详细了解<code>MeshMaterial2d</code>，那么我们就无法掌握如何渲染这些形状。</p>
+<h3 id="521-colormaterial"><a class="header" href="#521-colormaterial">5.2.1 ColorMaterial</a></h3>
+<p><code>ColorMaterial</code>是一种二维的材质，其结构体的内容如下。可见，通过<code>ColorMaterial</code>我们能够控制的是一个<code>mesh2d</code>的颜色、透明度、uv变换、还有材质，下面我们来详细介绍一些其使用方式。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct ColorMaterial {
+    pub color: Color,
+    pub alpha_mode: AlphaMode2d,
+    pub uv_transform: Affine2,
+    #[texture(1)]
+    #[sampler(2)]
+    pub texture: Option&lt;Handle&lt;Image&gt;&gt;,
+}
+<span class="boring">}</span></code></pre>
+<p>在创建<code>ColorMaterial</code>时，我们可以直接向其传入上面的四个参数。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mesh_handle = meshes.add(Rectangle::from_size(Vec2::splat(256.0)));
+commands.spawn((
+    //给Mesh2d传入一个形状的句柄
+    Mesh2d(mesh_handle),
+    //给MeshMaterial2d传入一个ColorMaterial的句柄
+    MeshMaterial2d(materials.add(ColorMaterial {
+        color: BLUE.into(),
+        alpha_mode: AlphaMode2d::Opaque,
+        texture: Some(texture_handle.clone()),
+        ..default()
+    })),
+    Transform::from_xyz(-300.0, 0.0, 1.0),
+));
+<span class="boring">}</span></code></pre>
+<p>对于第一个参数<code>color</code>而言，Bevy给了我们很多的构造方式，这些方式如下。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//bevy里有一组内置的常用颜色，可以直接引入他们
+use bevy::color::palettes::css::{BLUE, GREEN, WHITE};
+//或者，我们自己创建颜色结构体Color并传入
+use bevy::prelude::*;
+let color = Color::hsl(360. * i as f32 / num_shapes as f32, 0.95, 0.7);
+<span class="boring">}</span></code></pre>
+<p>枚举<code>alpha_mode</code>是一个<code>AlphaMode2d</code>类型，当我们使用图像做为材质时，该值设置对于图像的透明区域该如何处理。其包含三个值<code>Opaque</code>，<code>Mask(f32)</code>，<code>Blend</code>，他们的含义如下。</p>
+<ul>
+<li><code>Opaque</code>：忽略图像的透明通道，使用底色填充（一般为黑色）</li>
+<li><code>Mask(f32)</code>：设置一个阈值，类型为f32，当透明度低于这个值时将被渲染为透明，否则被认为完全不透明</li>
+<li><code>Blend</code>：透明通道不为1时则为半透明颜色，并且会与下面的其他颜色相混合</li>
+</ul>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use bevy::sprite_render::AlphaMode2d;
+
+MeshMaterial2d(materials.add(ColorMaterial {
+    alpha_mode: AlphaMode2d::Opaque,
+    ..default()
+})),
+<span class="boring">}</span></code></pre>
+<p><code>uv_transform</code>要与<code>texture</code>一起使用时才能发挥作用，当我们加载了一个图像并传入时，我们可以通过指定<code>uv_transform</code>来决定图像应该如何与形状对其，这是一个二维的<a href="https://doc.qu1x.dev/bevy_trackball/bevy/math/struct.Affine2.html">仿射变换</a>。</p>
+<p>在加载图像时，若图像大小小于<code>Mesh2d</code>，那么<strong>默认情况下，图像将会在左上角开始被放大到能填满区域为止</strong>，但是当你<strong>指定了<code>uv_transform</code>时</strong>，若还不能覆盖整个区域，那么<strong>边缘将会被拉伸到填满区域为止</strong>；若图像大小大于<code>Mesh2d</code>，那么将<strong>只会从图像的左上角开始显示</strong>。或者，我们可以指定将图像进行重复显示，这是通过加载图像时指定<code>settings</code>做到的。</p>
+<p><code>ImageSamplerDescriptor</code>里包含了大量的设置，读者可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy/image/struct.ImageSamplerDescriptor.html">文档</a>详细了解，这里我们只使用其uv参数。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let image_with_repeated_sampler = asset_server.load_with_settings(
+    "textures/fantasy_ui_borders/panel-border-010-repeated.png",
+    |s: &amp;mut _| {
+        *s = ImageLoaderSettings {
+            sampler: ImageSampler::Descriptor(ImageSamplerDescriptor {
+                // 以重复的模式来加载图像
+                address_mode_u: ImageAddressMode::Repeat,
+                address_mode_v: ImageAddressMode::Repeat,
+                ..default()
+            }),
+            ..default()
+        }
+    },
+);
+
+//使用时，我们需要指定Affine2来决定重复的次数，如果不指定，那么将默认为1，因此区域将铺满一个图像，而且使用临近插值
+//因此，这样不会出现线性插值时导致的边缘模糊问题
+MeshMaterial2d(materials.add(ColorMaterial {
+    texture: Some(image_with_repeated_sampler),
+    // uv_transform used here for proportions only, but it is full Affine2
+    // that's why you can use rotation and shift also
+    uv_transform: Affine2::from_scale(Vec2::new(2., 3.)),
+    ..default()
+})),
+<span class="boring">}</span></code></pre>
+<p>现在，我们介绍了<code>ColorMaterial</code>的四个重要的参数的使用方法，但是我们仍然缺少一种重要的材质渲染方式，这种方式是GPU最基础的也是功能最强大的，那就是利用顶点属性来渲染颜色。</p>
+<p>Mesh结构体上有一个特殊的方法，名叫<code>insert_attribute</code>，利用这个方法，我们可以对Mesh的顶点处插入一些属性，并指定这些属性的类型，当拥有这些属性时，wgpu将会自动工作来将其显示在屏幕上。同样，我们也可以移除这些属性，关于其他更多的方法可以查看相关的<a href="https://doc.qu1x.dev/bevy_trackball/bevy/prelude/struct.Mesh.html#method.insert_attribute">文档</a>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut mesh = Mesh::from(Rectangle::default());
+
+//顶点属性是一组数组
+let vertex_colors: Vec&lt;[f32; 4]&gt; = vec![
+    LinearRgba::RED.to_f32_array(),
+    LinearRgba::GREEN.to_f32_array(),
+    LinearRgba::BLUE.to_f32_array(),
+    LinearRgba::WHITE.to_f32_array(),
+];
+
+//利用insert_attribute可以插入这些数组，并指定其类型为Mesh::ATTRIBUTE_COLOR
+mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, vertex_colors);
+
+//现在，我们可以使用这个新的mesh作为Mesh2d
+let mesh_handle = meshes.add(mesh);	
+<span class="boring">}</span></code></pre>
+<h3 id="522-自定义材质"><a class="header" href="#522-自定义材质">5.2.2 自定义材质</a></h3>
+<p>与2d相关的内容主要储存在bevy_sprite_render这个crate中，其中包括渲染管道的组成、材质的定义的代码等。我们可以通过实现一个 <code>Material2d</code>特型来创建自己的材质。这涉及到了一些底层的wgpu与图形学内容，因此这一节应该属于渲染管线的内容，但是在这里我们将会简要提一下，感兴趣的读者可以查看<a href="https://docs.rs/bevy/0.17.3/bevy/sprite_render/trait.Material2d.html">文档</a>，或者等到学习自定义着色器时在反过来看这些内容。</p>
+<h2 id="53-font"><a class="header" href="#53-font">5.3 Font</a></h2>
+<p>字体是2D显示的另一个方面，在Bevy中，我们可以加载自己的字体并显示。</p>
+<p>字体是后戳为ttf的一些文件，包含了文字应该如何在屏幕上绘制的信息，要加载这些字体，就如同加载普通的<code>Aeest</code>一样。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+//加载字体之后，我们使用TextFont组件使用它，并指定一些字体的样式，就像使用图片一样
+let text_font = TextFont {
+    font: font.clone(),
+    font_size: 50.0,
+    ..default()
+};
+
+//将这个组件绑定到某个实体上，并指定一些其他的字体组件，便能显示在屏幕上
+commands.spawn((
+    Text2d::new(" translation "),
+    text_font.clone(),
+    TextLayout::new_with_justify(text_justification),
+    TextBackgroundColor(Color::BLACK.with_alpha(0.5)),
+    Text2dShadow::default(),
+));
+<span class="boring">}</span></code></pre>
+<p>在这其中涉及到了大量的字体相关的组件，例如<code>TextLayout</code>，<code>TextBackgroundColor</code>，<code>Text2dShadow</code>，他们的作用不言而喻，通过修改这些组件便可以影响字体的显示效果，读者可以查阅文档来获得详细的信息，这里不再赘述。</p>
+<h2 id="54-image"><a class="header" href="#54-image">5.4 Image</a></h2>
+<p>在前面，我们只是简单的使用了一下 <code>asset_server</code>来加载图像，但是我们还没有详细的介绍图像，在介绍Sprite相关的知识之前，有必要在介绍一下与图像相关的加载方式。在之前，我们知道了如何使用<code>asset_server</code>来加载图像，然后利用返回的handle，我们可以进行查询。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_image_data(images: ResMut&lt;Assets&lt;Image&gt;&gt;, share_image: Res&lt;ShareImage&gt;) {
+    let handle = match &amp;share_image.handle {
+        None =&gt; return,
+        Some(handle) =&gt; handle,
+    };
+    if let Some(image) = images.get(handle) {
+			//在这里可以使用
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>以下是<code>Image</code>结构体的字段，顾名思义，我们可以通过data来访问原始的图像数据，另外我们还有一些配置项能够修改图像的渲染行为。这些参数的具体含义，读者可以查看<a href="https://docs.rs/bevy/0.17.3/bevy/image/struct.Image.html">文档</a>。这里不再赘述。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Image {
+    pub data: Option&lt;Vec&lt;u8&gt;&gt;,
+    pub data_order: TextureDataOrder,
+    pub texture_descriptor: TextureDescriptor&lt;Option&lt;&amp;'static str&gt;, &amp;'static [TextureFormat]&gt;,
+    pub sampler: ImageSampler,
+    pub texture_view_descriptor: Option&lt;TextureViewDescriptor&lt;Option&lt;&amp;'static str&gt;&gt;&gt;,
+    pub asset_usage: RenderAssetUsages,
+    pub copy_on_resize: bool,
+}
+<span class="boring">}</span></code></pre>
+<p>在这里，我们需要重点关注其<code>sampler</code>字段，其表示了当图像被缩放时应该怎么被渲染，默认情况下Bevy将会采取线性插值的方式渲染，这可能会导致我们的图像经过放大之后出现模糊。这时，我们可以更改其为最临近插值，即可解决这个问题。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>image.sampler = ImageSampler::nearest();
+<span class="boring">}</span></code></pre>
+<p>更进一步，不知道读者是否还记得，每一种资产加载时，我们可以传递一个setting选项，Bevy为我们提供了<code>ImageLoaderSettings</code>选项，其中就可以直接指定我们的采样方式。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//加载图像时的一些可选配置
+pub struct ImageLoaderSettings {
+    pub format: ImageFormatSetting,
+    pub texture_format: Option&lt;TextureFormat&gt;,
+    pub is_srgb: bool,
+    pub sampler: ImageSampler,
+    pub asset_usage: RenderAssetUsages,
+}
+
+let image = asset_server.load_with_settings(
+    "textures/fantasy_ui_borders/numbered_slices.png",
+    |settings: &amp;mut ImageLoaderSettings| {
+        settings.sampler = ImageSampler::nearest();
+    },
+);
+<span class="boring">}</span></code></pre>
+<h2 id="55-sprite"><a class="header" href="#55-sprite">5.5 Sprite</a></h2>
+<p><code>Sprite</code>通常翻译为“精灵”，但其实只是另一种形式的图像，通常用于2D游戏的贴图。由于<code>Sprite</code>只是一种图像，因此最简单的方式就是直接加载一个图像然后生成，这可以通过以下方式来做到，通过这种方式，生成的贴图将会保持图像的原始尺寸，默认情况下，其中心将位于坐标(0,0)处。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//Sprite包含了非常多的参数，这些参数我们将在后面一一介绍
+pub struct Sprite {
+  	//使用的图像的句柄
+    pub image: Handle&lt;Image&gt;,
+  	//用于渲染的图像集合（多用于精灵的动画）
+    pub texture_atlas: Option&lt;TextureAtlas&gt;,
+  	//设置颜色，可以用来控制透明度
+    pub color: Color,
+  	//是否沿着x轴反转精灵
+    pub flip_x: bool,
+  	//同上，不过是y轴
+    pub flip_y: bool,
+  	//渲染时选定的尺寸，用于限制精灵的大小
+    pub custom_size: Option&lt;Vec2&gt;,
+  	//
+    pub rect: Option&lt;Rect&gt;,
+  	//控制精灵的加载方式，缩放、切片、瓦片重叠等
+    pub image_mode: SpriteImageMode,
+}
+
+
+//可以直接使用Sprite结构体来加载
+commands.spawn(Sprite {
+  image: asset_server.load("sprites/ball.png"),
+  ..default()
+});
+//或者，可以使用一个工厂函数
+let image_handle = asset_server.load("sprites/ball.png");
+let sprite = Sprite::from_image(image_handle);
+commands.spawn(sprite);
+<span class="boring">}</span></code></pre>
+<p>让我们先来介绍最重要的<code>image_mode</code>，很多时候我们并不是只想将图像加载，而是以重复的方式或者切片、缩放之后加载，这种方式可以节省我们的内存，通过只保存一份最小纹理，然后在加载时进行处理，我们就可以节省空间。为了做到这件事，我们需要使用<code>image_mode</code>参数，该参数是一个名为<code>SpriteImageMode</code> 的枚举类型，其包含以下四个值。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum SpriteImageMode {
+  	//默认拉伸图像到能够填满整个区域
+    Auto,
+  	//将纹理缩放
+    Scale(SpriteScalingMode),
+  	//将纹理切片
+    Sliced(TextureSlicer),
+  	//将纹理重复堆叠，stretch_value用于指定每一片相对于图像大小的缩放比
+    Tiled {
+        tile_x: bool,
+        tile_y: bool,
+        stretch_value: f32,
+    },
+}
+<span class="boring">}</span></code></pre>
+<h3 id="551-sprite-scale"><a class="header" href="#551-sprite-scale">5.5.1 sprite scale</a></h3>
+<p>要在加载时对图像进行缩放，我们可以在加载时将其指定为<code>SpriteImageMode::Scale</code>，其类型如下。其中包含了六个类型，这些值都不会改变图像的宽高比，前三个会尽可能放大图像导致图像只有一部分被渲染，后三个保证图像都会被渲染。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum ScalingMode {
+    FillCenter,
+    FillStart,
+    FillEnd,
+    FitCenter,
+    FitStart,
+    FitEnd,
+}
+<span class="boring">}</span></code></pre>
+<p>要使用这些值时，还必须指定<code>Sprite</code>的<code>custom_size</code>字段，因此我们现在可以这样去设定每个精灵的大小了。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>commands.spawn((
+    Sprite {
+        image: asset_server.load("textures/slice_square_2.png"),
+        custom_size: Some(Vec2::new(100., 225.)),
+        image_mode: SpriteImageMode::Scale(SpriteScalingMode::FillCenter),
+        ..default()
+    }
+));
+<span class="boring">}</span></code></pre>
+<p>​	下面是bevy示例sprite_scale中，每种缩放模式的效果。</p>
+<p><img src="./image/chapter5/1.png" alt="1"></p>
+<h3 id="552-sprite-slice"><a class="header" href="#552-sprite-slice">5.5.2 sprite slice</a></h3>
+<p>要在加载时对图像进行切片，我们可以在加载时将其指定为<code>SpriteImageMode::Sliced</code>，其中的<code>TextureSlicer</code>类型如下。sliced是一种九宫格切片技术，关于该技术的详细介绍读者可以查看<a href="https://en.wikipedia.org/wiki/9-slice_scaling">百科</a>。简而言之，这是一直特殊的缩放技术，能够在缩放时尽可能合理保持图像的纹理。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct TextureSlicer {
+  	//进行切片时的四条切割线位置
+    pub border: BorderRect,
+  	//九宫格中心的缩放方式
+    pub center_scale_mode: SliceScaleMode,
+  	//九宫格四个侧面的缩放方式
+    pub sides_scale_mode: SliceScaleMode,
+  	//九宫格四个角的最大缩放比例
+    pub max_corner_scale: f32,
+}
+
+pub enum SliceScaleMode {
+  	//以拉伸的方式拉伸图像
+    Stretch,
+  	//如果要重复绘制，每一小块纹理的缩放值
+    Tile {
+        stretch_value: f32,
+    },
+}
+
+
+//这里的四个值是相对于图像四个边缘的偏移量（分成九宫格需要四条线），而不是绝对坐标
+//left指的是距离图像左侧边缘的距离
+//right指的是距离图像右侧边缘的距离
+pub struct BorderRect {
+    pub left: f32,
+    pub right: f32,
+    pub top: f32,
+    pub bottom: f32,
+}
+<span class="boring">}</span></code></pre>
+<p>同样，我们在使用这种缩放模式的时候，也必须指定尺寸的大小。然后，就可以这样创建不同大小的切片。下图中的效果来自bevy的sprite_slice示例。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span> commands.spawn((
+    Sprite {
+        image: asset_server.load("textures/slice_square.png"),
+        custom_size: Some(Vec2::new(300.0, 200.0)),
+        image_mode: SpriteImageMode::Sliced(TextureSlicer {
+            border: BorderRect::all(200.0),
+            center_scale_mode: SliceScaleMode::Tile { stretch_value: 0.1 },
+            sides_scale_mode: SliceScaleMode::Tile { stretch_value: 0.2 },
+            max_corner_scale: 0.2,
+        }),,
+        ..default()
+    },
+));
+<span class="boring">}</span></code></pre>
+<p><img src="./image/chapter5/2.png" alt="2"></p>
+<h3 id="553-sprite-tile"><a class="header" href="#553-sprite-tile">5.5.3 sprite tile</a></h3>
+<p>要在加载时对图像进行重复，例如我们可以利用小块纹理进行重复来得到整块区域的北京，我们可以在加载时将其指定为<code>SpriteImageMode::Tiled</code>，相比前两种，这种方式使用起来则轻松得多。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Tiled {
+    tile_x: bool,
+    tile_y: bool,
+    stretch_value: f32,
+},
+<span class="boring">}</span></code></pre>
+<p>我们有三个参数，分别指定了在两个方向上是否要进行重复，最后一个参数和slice中的一样，指定重复时的比例。例如，我们可以这样设定。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>commands.spawn(Sprite {
+    image: asset_server.load("branding/icon.png"),
+    image_mode: SpriteImageMode::Tiled {
+        tile_x: true,
+        tile_y: true,
+        stretch_value: 0.5, // The image will tile every 128px
+    },
+    ..default()
+});
+<span class="boring">}</span></code></pre>
+<p><img src="./image/chapter5/3.png" alt="3"></p>
+<h3 id="554-sprite-animations"><a class="header" href="#554-sprite-animations">5.5.4 sprite animations</a></h3>
+<p>加载完了图像之后，我们还需要给每个角色设定动画，如果只是看到人物单纯的平移那可不是我们想要的。对于2D图像来说，我们最常用的就是下面这种方式，其中每一副图像指定了角色动画的一帧，我们要做的就是不断重复这些图像来产生动画。</p>
+<p><img src="./image/chapter5/4.png" alt="4"></p>
+<p>要加载这样的精灵，我们需要结合<code>texture_atlas</code>参数来指定动画每一帧的读取方式，该参数的定义如下。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct TextureAtlas {
+  	//纹理的布局的描述
+    pub layout: Handle&lt;TextureAtlasLayout&gt;,
+  	//纹理图的索引
+    pub index: usize,
+}
+
+pub struct TextureAtlasLayout {
+  	//整个图像大小
+    pub size: UVec2,
+  	//图像里每一帧的大小
+    pub textures: Vec&lt;URect&gt;,
+}	
+<span class="boring">}</span></code></pre>
+<p>由于<code>TextureAtlasLayout</code>是一种Assets，因此我们还需要将其添加到bevy内置的资产中。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//这个组件包含一个计时器，用于控制我们的动画播放速度
+#[derive(Component, Deref, DerefMut)]
+struct AnimationTimer(Timer);
+
+//这个组件用来记录帧数的起始和结束编号
+#[derive(Component)]
+struct AnimationIndices {
+    first: usize,
+    last: usize,
+}
+
+fn setup(
+    mut commands: Commands,
+    asset_server: Res&lt;AssetServer&gt;,
+  	// 获取TextureAtlasLayout资产
+    mut texture_atlas_layouts: ResMut&lt;Assets&lt;TextureAtlasLayout&gt;&gt;,
+) {
+  	//加载这幅由多帧拼成的图像
+    let texture = asset_server.load("textures/rpg/chars/gabe/gabe-idle-run.png");
+  	//指定图像的布局，这里指定其为1行7列，每一帧大小为24px，后两个参数是padding和offset，我们不需要指定
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(24), 7, 1, None, None);
+  	//将其添加到全局的资产中
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+		let animation_indices = AnimationIndices { first: 1, last: 6 };
+		//加载相机
+    commands.spawn(Camera2d);
+		//指定精灵和动画
+    commands.spawn((
+        Sprite::from_atlas_image(
+            texture,
+            TextureAtlas {
+                layout: texture_atlas_layout,
+              	//指定当前的帧编号
+                index: 1,
+            },
+        ),
+     	 	animation_indices,
+        Transform::from_scale(Vec3::splat(6.0)),
+      	AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+    ));
+}
+<span class="boring">}</span></code></pre>
+<p>现在，我们便可以在一个系统中通过更改组件的<code>texture_atlas</code>上的<code>index</code>，就可以实现帧之间的切换。不过在这里，我们得关心一下帧切换的速度，由于bevy的渲染系统非常快，所以我们必须控制一下切换的速度符合实际，这就要利用我们之前添加的<code>AnimationTimer</code>，其中定义了一个<code>Timer</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn animate_sprite(
+    time: Res&lt;Time&gt;,
+    mut query: Query&lt;(&amp;AnimationIndices, &amp;mut AnimationTimer, &amp;mut Sprite)&gt;,
+) {
+    for (indices, mut timer, mut sprite) in &amp;mut query {
+        timer.tick(time.delta());
+
+        if timer.just_finished()
+            &amp;&amp; let Some(atlas) = &amp;mut sprite.texture_atlas
+        {
+            atlas.index = if atlas.index == indices.last {
+                indices.first
+            } else {
+                atlas.index + 1
+            };
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="555-批量加载sprite"><a class="header" href="#555-批量加载sprite">5.5.5 批量加载sprite</a></h3>
+<p>想象一下，在一个游戏里我们有巨量的图像都需要加载，在这种情况下这件事很快就会变得很棘手，由于精灵的不同动作的动画可能不在一幅图像里，因此我们必须手动的将这些多副图像组合为一幅。幸运的是，Bevy为我们提供了一种更好的方式来加载这些图像。</p>
+<p>首先，我们不再使用<code>asset_server</code>来加载单幅图像，而是使用其<code>load_folder</code>方法来递归地加载整个文件夹下的所有可加载文件，并判断其是否是图像。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//用于保存句柄的全局资源
+#[derive(Resource, Default)]
+struct RpgSpriteFolder(Handle&lt;LoadedFolder&gt;);
+
+fn load_textures(mut commands: Commands, asset_server: Res&lt;AssetServer&gt;) {
+    //在这里我们加载整个文件夹，并保存其句柄
+    commands.insert_resource(RpgSpriteFolder(asset_server.load_folder("textures/rpg")));
+}
+
+<span class="boring">}</span></code></pre>
+<p>然后，我们还需要某种方式，来观察加载是否已经完成然后调用我们的某个系统来处理，这可以通过系统的state来实现（还记得吗？）</p>
+<pre class="playground"><code class="language-rust">//首先定义我们的state，并指定默认的状态
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, States)]
+enum AppState {
+    #[default]
+    Setup,
+    Finished,
+}
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest())) 
+  			//注册我们的state
+        .init_state::&lt;AppState&gt;()
+  			//当进入Setup状态时，我们调用load_textures加载整个文件夹下的内容
+        .add_systems(OnEnter(AppState::Setup), load_textures)
+  			//如果在Setup状态，我们就不停的检查加载是否已经完成
+        .add_systems(Update, check_textures.run_if(in_state(AppState::Setup)))
+  			//当进入Finished状态时，资源加载完成，我们调用setup函数使用这些资源
+        .add_systems(OnEnter(AppState::Finished), setup)
+        .run();
+}
+
+fn check_textures(
+    mut next_state: ResMut&lt;NextState&lt;AppState&gt;&gt;,
+    rpg_sprite_folder: Res&lt;RpgSpriteFolder&gt;,
+    mut events: MessageReader&lt;AssetEvent&lt;LoadedFolder&gt;&gt;,
+) {
+    //我们可以通过事件的方式来检查加载是否完成
+    for event in events.read() {
+        if event.is_loaded_with_dependencies(&amp;rpg_sprite_folder.0) {
+            next_state.set(AppState::Finished);
+        }
+    }
+}
+
+</code></pre>
+<p>一旦这些步骤完成，我们就可以使用这些资源来加载我们的<code>sprite</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>
+fn setup(
+    mut commands: Commands,
+    rpg_sprite_handles: Res&lt;RpgSpriteFolder&gt;,
+    asset_server: Res&lt;AssetServer&gt;,
+    mut texture_atlases: ResMut&lt;Assets&lt;TextureAtlasLayout&gt;&gt;,
+    loaded_folders: Res&lt;Assets&lt;LoadedFolder&gt;&gt;,
+    mut textures: ResMut&lt;Assets&lt;Image&gt;&gt;,
+) {
+  	//首先获取我们已经加载完成的loaded_folder
+    let loaded_folder = loaded_folders.get(&amp;rpg_sprite_handles.0).unwrap();
+		//然后创建sprite
+    let (texture_atlas_linear, linear_sources, linear_texture) = create_texture_atlas(
+        loaded_folder,
+        None,
+        Some(ImageSampler::linear()),
+        &amp;mut textures,
+    );
+}
+
+<span class="boring">}</span></code></pre>
+<p>如何合并多副图像为一个并从中创建单个的<code>TextureAtlas</code>呢？这可以通过<code>TextureAtlasBuilder</code>来实现，<code>TextureAtlasBuilder</code>能够自动将多副图像合并为一副，并返回三个参数：<code>texture_atlas_layout</code>, <code>texture_atlas_sources</code>, <code>texture</code>，他们的类型分别是<code>TextureAtlas</code>，<code>TextureAtlasSources</code>，<code>Handle&lt;Image&gt;</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>
+fn create_texture_atlas(
+    folder: &amp;LoadedFolder,
+    padding: Option&lt;UVec2&gt;,
+    sampling: Option&lt;ImageSampler&gt;,
+    textures: &amp;mut ResMut&lt;Assets&lt;Image&gt;&gt;,
+) -&gt; (TextureAtlasLayout, TextureAtlasSources, Handle&lt;Image&gt;) {
+    //创建一个Builder
+    let mut texture_atlas_builder = TextureAtlasBuilder::default();
+  	//我们可以指定padding来在合并时将图像相隔一段像素
+    texture_atlas_builder.padding(padding.unwrap_or_default());
+  	//对文件夹里的每一副图像，检查是否为图像并其添加到builder中
+    for handle in folder.handles.iter() {
+        let id = handle.id().typed_unchecked::&lt;Image&gt;();
+        let Some(texture) = textures.get(id) else {
+            warn!(
+                "{} did not resolve to an `Image` asset.",
+                handle.path().unwrap()
+            );
+            continue;
+        };
+        texture_atlas_builder.add_texture(Some(id), texture);
+    }
+		//现在，合并这些图像并生成一整副
+    let (texture_atlas_layout, texture_atlas_sources, texture) =
+        texture_atlas_builder.build().unwrap();
+  	//将合并之后的图像添加到全局资产中
+    let texture = textures.add(texture);
+
+    //在这里修改我们的图像采样方式
+    let image = textures.get_mut(&amp;texture).unwrap();
+    image.sampler = sampling.unwrap_or_default();
+
+    (texture_atlas_layout, texture_atlas_sources, texture)
+}
+<span class="boring">}</span></code></pre>
+<p>根据前面的介绍，<code>texture_atlas_layout</code>中记录了合并后整副图像的大小和每一副子图像的矩形范围。但是我们还缺少一个关键信息，我们只知道这幅子图的范围，而不知道这部分子图到底是那副图像。这些信息，就记录在了<code>TextureAtlasSources</code>类型的<code>texture_atlas_sources</code>中，其定义如下，只是一个简单的<code>HashMap</code>而已。如果我们需要使用这些信息的话，便可以通过这两个返回值来获得正确的对应关系。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct TextureAtlasSources {
+    pub texture_ids: HashMap&lt;AssetId&lt;Image&gt;, usize&gt;,
+}
+<span class="boring">}</span></code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="4: Time.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="5.5: 空间变换.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="4: Time.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="5.5: 空间变换.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

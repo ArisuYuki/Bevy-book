@@ -1,0 +1,507 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第 3 章：资产系统 - Bevy游戏引擎指南</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-85f544ed.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-79a1dbf2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bevy游戏引擎指南</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="41-回顾asset"><a class="header" href="#41-回顾asset">4.1 回顾Asset</a></h2>
+<p>资产是需要加载到游戏中的资源，通常来自于各种硬盘里的文件，例如图像、模型、材质、字体、音频等等等等。由于这些资源的加载往往需要耗费大量时间，因此Bevy里这些资产的加载往往都是以异步的形式以避免阻塞游戏循环。在Bevy中，我们可以使用<code>AssetServer</code>从硬盘里加载资产，使用<code>Assets&lt;T&gt;</code>来存储已经加载的各类资产。</p>
+<p>与资产相关的内容主要在bevy_asset这个crate中，要使用这些内容，<strong>必须在App上调用其中的<a href="https://docs.rs/bevy_asset/0.17.3/bevy_asset/struct.AssetPlugin.html">AssetPlugin</a>这个插件才能访问<code>AssetServer</code>、<code>Assets</code>等类型，这个插件还提供了一些额外的设置，例如指定模式和路径等，该插件已经在DefaultPlugin内，不需要我们再手动安装。</strong></p>
+<p>与Asset相关的类型和结构很多，不过大多数时候我们都不需要和他们打交道，如果仅仅是使用，我们只需要和<code>AssetServer</code>还有<code>Assets&lt;T&gt;</code>接触就足够了。</p>
+<h3 id="411-assetserver"><a class="header" href="#411-assetserver">4.1.1 AssetServer</a></h3>
+<p><code>AssetServer</code>作为一种全局资源，可以使用之前我们加载资源的方式以<code>Res</code>来获取。默认情况下，加载的资产都相对于项目目录下的assets文件夹，要修改这个默认行为，可以修改<code>BEVY_ASSET_ROOT</code>环境变量来指定加载资产的目录。</p>
+<p>首先，我们使用<code>AssetServer</code>加载了一个图像并获得其句柄，句柄类似于一个对资产的引用计数指针，但能被克隆为强句柄和弱句柄，当不再存在资产的强句柄时，Bevy能够自动将其回收并销毁以释放内存。所以，<strong>为了保证资产的持续存在，必须将句柄存储在一个<code>Resource</code>或者<code>Component</code>中。</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Resource)]
+struct ShareImage {
+  handle: Option&lt;Handle&lt;Image&gt;&gt;,
+}
+
+fn load_image(asset_server: Res&lt;AssetServer&gt;, mut share_image: ResMut&lt;ShareImage&gt;) {
+    let image_handle = asset_server.load("test.png");
+    share_image.handle = Some(image_handle);
+}
+<span class="boring">}</span></code></pre>
+<p>由于<code>AssetServer</code>返回的是一个句柄并采取异步的方式加载资源，如果你的逻辑中需要判断资源是否加载完成，不能依靠句柄本身存在与否来判断，要实现此功能，可以使用其身上的<code>get_load_state</code>方法或<code>is_loaded_with_dependencies</code>方法，该方法会返回一个<code>LoadState</code>类型的枚举，用来标识加载的阶段。他们的区别将在之后介绍，现在重要的是理解资产的加载是异步的，需要判断是否加载完成才能够使用。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_asset_event(
+  mut commands: Commands,
+  asset_server: Res&lt;AssetServer&gt;,
+  share_image: Res&lt;ShareImage&gt;,
+) {
+  match asset_server.get_load_state(&amp;share_image.handle) {
+    Some(LoadState::NotLoaded) =&gt; {}
+    Some(LoadState::Loading) =&gt; {}
+    Some(LoadState::Loaded) =&gt; {
+      //在这里使用handle，这时已经加载完成
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="412--assets"><a class="header" href="#412--assets">4.1.2  Assets</a></h3>
+<p><strong><code>Assets&lt;T&gt;</code></strong> 是一个键值对集合，存储了特定类型 <code>T</code> 的所有<strong>实际资产数据</strong>。当<code>AssetServer</code><strong>成功加载资源后</strong>，将会将真正的数据保存在对应的**<code>Assets&lt;T&gt;</code>** 中，如果需要获得真正的数据，则需要使用相关的句柄和对应类型的<code>Assets</code></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_image_data(images: ResMut&lt;Assets&lt;Image&gt;&gt;, share_image: Res&lt;ShareImage&gt;) {
+    let handle = match &amp;share_image.handle {
+        None =&gt; return,
+        Some(handle) =&gt; handle,
+    };
+    if let Some(image) = images.get(handle) {
+        // 现在你有了image的真正数据，可以读取或者修改
+        println!("Loaded image size: {:?}", image.size());
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="413-自定义资产"><a class="header" href="#413-自定义资产">4.1.3 自定义资产</a></h3>
+<p>如果我们的资产是某种Bevy不支持的格式时，必须手动编写代码和Bevy进行交互来定义我们的<strong>资产类型</strong>、资产的<strong>加载方法</strong>、资产的<strong>设置</strong>以及加载时可能的<strong>错误</strong>。</p>
+<p>假如，我们想要声明一个能够加载点云las文件的资产，那么首先需要定义我们的资产数据应该长什么样子。本质上那只是一个点的<code>Vec</code>而已，其中每个点都有自己的位置、点的尺寸、以及颜色信息，看起来可能是下面这个样子。</p>
+<p>注意到我们使用了<code>#[derive(Asset)]</code>来告诉Bevy这是我们的资产。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//点云资产
+#[derive(Asset)]
+pub struct PointCloud {
+    pub points: Vec&lt;PointCloudData&gt;,
+}
+
+//实际的点数据
+#[repr(C)]
+pub struct PointCloudData {
+    pub position: Vec3,
+    pub point_size: f32,
+    pub color: [f32; 4],
+}
+<span class="boring">}</span></code></pre>
+<p>接着，让我们定义加载时可能出现的一些错误，我们可以使用<code>thiserror</code>来快速声明这些错误类型。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use thiserror::Error;
+#[derive(Error, Debug)]
+pub enum LasLoaderError {
+    #[error("failed to load file: {0}")]
+    Io(#[from] std::io::Error),
+}
+<span class="boring">}</span></code></pre>
+<p>之后，让我们定义一些资产的加载设置和加载器，并为我们的加载器实现<code>AssetLoader</code>特型，在之前我们介绍过，Bevy中的资产加载是异步的，因此需要使用<code>async</code>声明<code>load</code>方法。这里的代码没什么神奇的，但值得一提的是这里的 <code>Reader</code>读取的是二进制数据，需要使用一个<code>Vec&lt;u8&gt;</code>来作为缓冲区存储这些字节数据。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//在加载时我们可以额外传递一个配置以便动态的控制加载过程，但是在这里我们不需要这些
+pub struct LasLoaderSettings{}
+
+//我们的加载器
+pub struct LasLoader {}
+
+impl AssetLoader for LasLoader {
+    type Asset = PointCloud;
+    type Settings = LasLoaderSettings;
+    type Error = LasLoaderError;
+
+    async fn load(
+        &amp;self,
+        reader: &amp;mut dyn bevy_asset::io::Reader,
+        _settings: &amp;Self::Settings,
+        _load_context: &amp;mut LoadContext&lt;'_&gt;,
+    ) -&gt; Result&lt;PointCloud, Self::Error&gt; {
+      let mut bin_data = Vec::new();
+      reader.read_to_end(&amp;mut bin_data).await?;
+      //在这里编写真正加载数据的逻辑
+      //let points = ..... 
+      //然后返回一个资产
+      Ok(PointCloud { points })
+  }
+<span class="boring">}</span></code></pre>
+<p>最后，让我们在<code>App</code>中注册这些资产和相应的加载器。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+  App::new()
+    .add_plugins(DefaultPlugins)
+  	//通过这两个方法注册相应的加载器和资产类型
+    .init_asset_loader::&lt;LasLoader&gt;()
+    .init_asset::&lt;PointCloud&gt;()
+    .add_systems(Startup, load_pointcloud)
+    .run();
+}
+
+//现在，我们应该能够直接使用这些资产类型了
+fn load_pointcloud(
+    mut commands: Commands,
+    asset_server: Res&lt;AssetServer&gt;,
+){
+  let point_cloud_handler = asset_server.load::&lt;PointCloud&gt;("pointCloud.las");
+}</code></pre>
+<h2 id="42-资产加载流程"><a class="header" href="#42-资产加载流程">4.2 资产加载流程</a></h2>
+<p>在 Bevy 引擎中，<code>AssetReader</code>、<code>AssetLoader</code>、<code>AssetSaver</code> 和 <code>AssetWriter</code> 都是资产系统的重要组成部分，它们各自承担着不同的职责。</p>
+<h3 id="421-assetloader"><a class="header" href="#421-assetloader">4.2.1 AssetLoader</a></h3>
+<p><code>AssetLoader</code>是我们主要用于加载资产的核心类型，在第一章的自定义资产中，我们做了如下几件事情：</p>
+<ol>
+<li>使用<code>Asset</code>指令定义一个<code>PointCloud</code>资产</li>
+<li>定义对应的<code>LasLoader</code>、<code>LasLoaderError</code>、<code>LasLoaderSettings</code></li>
+<li>为<code>LasLoader</code>实现异步的<code>load</code>方法，并从中返回一个<code>Asset</code></li>
+</ol>
+<p>通过这些操作，我们便可以在系统中这样使用我们自定义的加载器以方便的来实现自定义类型的文件加载，并且，我们还可以通过<code>LasLoaderSettings</code>来控制加载的行为。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+  App::new()
+    .add_plugins(DefaultPlugins)
+  	//通过这两个方法注册相应的加载器和资产类型
+    .init_asset_loader::&lt;LasLoader&gt;()
+    .init_asset::&lt;PointCloud&gt;()
+  	.add_systems(Startup, load_pointcloud)
+    .run();
+}
+
+//现在，我们应该能够直接使用这些资产类型了
+fn load_pointcloud(
+    mut commands: Commands,
+    asset_server: Res&lt;AssetServer&gt;,
+){
+  //我们不再简单的使用load方法，而是使用load_with_settings方法来指定setting参数
+  let point_cloud_handler = asset_server.load_with_settings::&lt;PointCloud&gt;(
+    "pointCloud.las"，
+    |settings: &amp;mut LasLoaderSettings| {
+         //我们可以对这个默认对象做一些更改
+    });
+}</code></pre>
+<h3 id="422-assetreader"><a class="header" href="#422-assetreader">4.2.2 AssetReader</a></h3>
+<p>在为<code>LasLoader</code>实现异步的<code>load</code>方法时，你可能已经注意到了有一个<code>Reader</code>参数，他是一个类型擦除的<code>bevy_asset::io::Reader</code>特型对象，用于异步地将字节数据读取到缓冲区中。而这个特型对象，正是<code>AssetReader</code>的<code>read</code>方法返回的。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl AssetLoader for LasLoader {
+    type Asset = PointCloud;
+    type Settings = LasLoaderSettings;
+    type Error = LasLoaderError;
+
+    async fn load(
+        &amp;self,
+        reader: &amp;mut dyn bevy_asset::io::Reader,
+        _settings: &amp;Self::Settings,
+        _load_context: &amp;mut LoadContext&lt;'_&gt;,
+    ) -&gt; Result&lt;PointCloud, Self::Error&gt; {
+      let mut bin_data = Vec::new();
+      reader.read_to_end(&amp;mut bin_data).await?;
+      //在这里编写真正加载数据的逻辑
+      //let points = ..... 
+      //然后返回一个资产
+      Ok(PointCloud { points })
+  }
+<span class="boring">}</span></code></pre>
+<p><code>AssetReader</code>和<code>AssetLoader</code>都用于资产的加载，但是他们负责的层级是完全不同的。<strong><code>AssetReader</code>为不同的平台提供了一个统一的、异步的加载方式，使得我们的游戏能够在每个平台上以相同的方式读取资产；而<code>AssetLoader</code>负责将数据解析成正确的格式，以供程序的正确使用。</strong></p>
+<p>大多数情况下，我们可以直接使用内置的<code>AssetReader</code>不需要对其进行自定义，但如果你需要在这个环节进行一些操作，那么Bevy也提供了相应的方法让我们能够重写我们自己的<code>Reader</code>。详细的细节可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy_asset/io/trait.AssetReader.html#tymethod.read">文档</a>和<a href="https://github.com/bevyengine/bevy/blob/main/examples/asset/custom_asset_reader.rs">示例</a>。</p>
+<h3 id="423-assetsaver与assetwriter"><a class="header" href="#423-assetsaver与assetwriter">4.2.3 AssetSaver与AssetWriter</a></h3>
+<p>理解了<code>AssetReader</code>与<code>AssetLoader</code>的关系，我们可以猜到应该还有两个用于保存资产到本地的类型，这些类型就是<code>AssetWriter</code>与<code>AssetSaver</code>，他们的关系是类似的：<code>AssetWriter</code>提供了一个统一的、异步的写入方式，将我们的资产写入到文件系统中，而<code>AssetSaver</code>则负责将数据转换成需要保存的格式。二者的具体使用方法可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy_asset/saver/trait.AssetSaver.html">文档</a>，需要为<code>AssetSaver</code>实现一个<code>save</code>方法，该方法和<code>load</code>非常相似，这里不再赘述。</p>
+<h2 id="43-资产加载"><a class="header" href="#43-资产加载">4.3 资产加载</a></h2>
+<h3 id="431-内嵌资产"><a class="header" href="#431-内嵌资产">4.3.1 内嵌资产</a></h3>
+<p>有些时候，我们希望将资产打包进入二进制程序中，然后在程序中直接读取这些资产而不是从硬盘里加载。例如，我们可能编写了一些wgsl着色器而又不想将这些代码作为文件存储在磁盘里，这时就需要将其直接内嵌在二进制的程序中，不过我们会需要一些额外的手段来告诉Bevy如何读取这些内嵌的资源。</p>
+<p>Bevy中使用宏来嵌入资产到程序中并读取，他们是<code>embedded_asset!</code>宏和<code>load_embedded_asset!</code>宏。</p>
+<p><code>embedded_asset!</code>宏接受两个或三个参数，当接受两个参数的时候，第一个是当前<code>app</code>的可变引用，第二个是需要内嵌的资源的相对于当前目录的路径。假设我们的项目目录如下，我们现在想要将rock.wgsl内嵌到程序中。</p>
+<pre><code class="language-tex">bevy_rock
+├── src
+│   ├── render
+│   │   ├── rock.wgsl
+│   │   └── mod.rs
+│   └── lib.rs
+└── Cargo.toml
+</code></pre>
+<p>在render目录下的mod.rs中，我们可以编写一个插件，然后这样使用<code>embedded_asset!</code>宏和<code>load_embedded_asset!</code>宏。当使用宏加载后，文件将会位于一个虚拟的目录下，在这里是<code>embedded://bevy_rock/render/rock.wgsl</code>（注意到src路径已经被删除）。其中前面的<code>embedded</code>被称为<code>AssetSourceId</code>，每一类<code>AssetSourceId</code>都映射着对应的<code>AssetReader</code>和<code>AssetWriter</code>（从程序中之间内嵌的数据读取方式和从磁盘的读取方式不同，所以需要保留这个信息告诉Bevy正确的读取方式）。</p>
+<p>我们还可以利用<code>app</code>上的<code>register_asset_source</code>方法注册自己的<code>AssetSourceId</code>，将其绑定到某些文件夹以便在加载资产时通过前戳来快速访问资产，详细的方法可以参考<a href="https://doc.qu1x.dev/bevy_trackball/bevy_asset/trait.AssetApp.html#tymethod.register_asset_source">文档</a>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//使用两个参数的版本时，第一个参数是app的可变引用，第二个是资产的路径（相对当前目录）
+embedded_asset!(app, "rock.wgsl")
+//使用三个参数的版本时，第三个参数是资产的路径，第二个参数是需要移除的路径部分
+//因此embedded_asset!(app, "rock.wgsl")和embedded_asset!(app, "/src/", "rock.wgsl")是等效的
+embedded_asset!(app, "/examples/rock_stuff/", "rock.wgsl")
+<span class="boring">}</span></code></pre>
+<p>然后，我们有两种方式可以加载这个资源。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//如果在当前的模块中加载，我们可以直接使用load_embedded_asset
+let shader = load_embedded_asset!(&amp;asset_server, "rock.wgsl");
+
+//如果在其他模块中，我们可以使用asset_server和路径全称
+let shader = asset_server.load::&lt;Shader&gt;("embedded://bevy_rock/render/rock.wgsl");
+<span class="boring">}</span></code></pre>
+<p>在Bevy 0.12之前，你可能会看到名为<code>load_internal_asset!</code>的宏，该宏的作用和上面是一样的，不过目前已经被<code>embedded_asset!</code>取代，因此不建议继续使用。</p>
+<h3 id="432-web资产"><a class="header" href="#432-web资产">4.3.2 web资产</a></h3>
+<p>另一类比较特殊的资产就是从web上加载的资产，在网络上加载一些内如，我们需要一点额外的支持：引入<code>WebAssetPlugin</code>插件并开启http特征。</p>
+<pre class="playground"><code class="language-rust">use bevy::{asset::io::web::WebAssetPlugin, prelude::*};
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins.set(WebAssetPlugin {
+            silence_startup_warning: true,
+        }))
+        .add_systems(Startup, setup)
+        .run();
+}</code></pre>
+<p>然后我们就可以像使用普通的文件一样，从web的url里加载这些资产了。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn setup(mut commands: Commands, asset_server: Res&lt;AssetServer&gt;) {
+    commands.spawn(Camera2d);
+    let url = "https://raw.githubusercontent.com/bevyengine/bevy/refs/heads/main/assets/branding/bevy_bird_dark.png";
+    commands.spawn(Sprite::from_image(asset_server.load(url)));
+}
+
+<span class="boring">}</span></code></pre>
+<h2 id="44-资产事件"><a class="header" href="#44-资产事件">4.4 资产事件</a></h2>
+<p>资产会在加载的过程中发出一系列Message，如果你需要对这些事件做出一些响应，在bevy中这些事件是一个AssetEvent的枚举类型，可以看到当资产被添加、更改、移除、加载完成时都会发出一些事件，并且在其中保存了对应的资产的ID。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum AssetEvent&lt;A: Asset&gt; {
+    Added {
+        id: AssetId&lt;A&gt;,
+    },
+    Modified {
+        id: AssetId&lt;A&gt;,
+    },
+    Removed {
+        id: AssetId&lt;A&gt;,
+    },
+    Unused {
+        id: AssetId&lt;A&gt;,
+    },
+    LoadedWithDependencies {
+        id: AssetId&lt;A&gt;,
+    },
+}
+<span class="boring">}</span></code></pre>
+<p>要响应这些事件，只需要使用特定的<code>MessageReader</code>即可。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_message(mut messages: MessageReader&lt;AssetEvent&gt;) {
+  for message in messages.read() {
+    //对消息做一些处理
+    //...
+  }
+}
+<span class="boring">}</span></code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="2: ECS.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="4: Time.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="2: ECS.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="4: Time.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
