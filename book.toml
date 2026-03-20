@@ -1,0 +1,7 @@
+[book]
+title = "Bevy游戏引擎指南"
+authors = ["Ailrid"]
+language = "zh-CN"
+
+[preprocessor.katex]
+after = ["links"]
