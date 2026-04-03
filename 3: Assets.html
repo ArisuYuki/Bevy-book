@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ee7819df.js";
+            window.path_to_searchindex_js = "searchindex-f7393dc0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-881bfa28.js"></script>
+        <script src="toc-bff3285f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -175,11 +175,11 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
-<h2 id="41-回顾asset"><a class="header" href="#41-回顾asset">4.1 回顾Asset</a></h2>
+<h2 id="31-回顾asset"><a class="header" href="#31-回顾asset">3.1 回顾Asset</a></h2>
 <p>资产是需要加载到游戏中的资源，通常来自于各种硬盘里的文件，例如图像、模型、材质、字体、音频等等等等。由于这些资源的加载往往需要耗费大量时间，因此Bevy里这些资产的加载往往都是以异步的形式以避免阻塞游戏循环。在Bevy中，我们可以使用<code>AssetServer</code>从硬盘里加载资产，使用<code>Assets&lt;T&gt;</code>来存储已经加载的各类资产。</p>
 <p>与资产相关的内容主要在bevy_asset这个crate中，要使用这些内容，<strong>必须在App上调用其中的<a href="https://docs.rs/bevy_asset/0.17.3/bevy_asset/struct.AssetPlugin.html">AssetPlugin</a>这个插件才能访问<code>AssetServer</code>、<code>Assets</code>等类型，这个插件还提供了一些额外的设置，例如指定模式和路径等，该插件已经在DefaultPlugin内，不需要我们再手动安装。</strong></p>
 <p>与Asset相关的类型和结构很多，不过大多数时候我们都不需要和他们打交道，如果仅仅是使用，我们只需要和<code>AssetServer</code>还有<code>Assets&lt;T&gt;</code>接触就足够了。</p>
-<h3 id="411-assetserver"><a class="header" href="#411-assetserver">4.1.1 AssetServer</a></h3>
+<h3 id="311-assetserver"><a class="header" href="#311-assetserver">3.1.1 AssetServer</a></h3>
 <p><code>AssetServer</code>作为一种全局资源，可以使用之前我们加载资源的方式以<code>Res</code>来获取。默认情况下，加载的资产都相对于项目目录下的assets文件夹，要修改这个默认行为，可以修改<code>BEVY_ASSET_ROOT</code>环境变量来指定加载资产的目录。</p>
 <p>首先，我们使用<code>AssetServer</code>加载了一个图像并获得其句柄，句柄类似于一个对资产的引用计数指针，但能被克隆为强句柄和弱句柄，当不再存在资产的强句柄时，Bevy能够自动将其回收并销毁以释放内存。所以，<strong>为了保证资产的持续存在，必须将句柄存储在一个<code>Resource</code>或者<code>Component</code>中。</strong></p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -210,7 +210,7 @@ fn load_image(asset_server: Res&lt;AssetServer&gt;, mut share_image: ResMut&lt;S
     }
 }
 <span class="boring">}</span></code></pre>
-<h3 id="412--assets"><a class="header" href="#412--assets">4.1.2  Assets</a></h3>
+<h3 id="312--assets"><a class="header" href="#312--assets">3.1.2  Assets</a></h3>
 <p><strong><code>Assets&lt;T&gt;</code></strong> 是一个键值对集合，存储了特定类型 <code>T</code> 的所有<strong>实际资产数据</strong>。当<code>AssetServer</code><strong>成功加载资源后</strong>，将会将真正的数据保存在对应的**<code>Assets&lt;T&gt;</code>** 中，如果需要获得真正的数据，则需要使用相关的句柄和对应类型的<code>Assets</code></p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -225,7 +225,7 @@ fn load_image(asset_server: Res&lt;AssetServer&gt;, mut share_image: ResMut&lt;S
     }
 }
 <span class="boring">}</span></code></pre>
-<h3 id="413-自定义资产"><a class="header" href="#413-自定义资产">4.1.3 自定义资产</a></h3>
+<h3 id="313-自定义资产"><a class="header" href="#313-自定义资产">3.1.3 自定义资产</a></h3>
 <p>如果我们的资产是某种Bevy不支持的格式时，必须手动编写代码和Bevy进行交互来定义我们的<strong>资产类型</strong>、资产的<strong>加载方法</strong>、资产的<strong>设置</strong>以及加载时可能的<strong>错误</strong>。</p>
 <p>假如，我们想要声明一个能够加载点云las文件的资产，那么首先需要定义我们的资产数据应该长什么样子。本质上那只是一个点的<code>Vec</code>而已，其中每个点都有自己的位置、点的尺寸、以及颜色信息，看起来可能是下面这个样子。</p>
 <p>注意到我们使用了<code>#[derive(Asset)]</code>来告诉Bevy这是我们的资产。</p>
@@ -301,9 +301,9 @@ fn load_pointcloud(
 ){
   let point_cloud_handler = asset_server.load::&lt;PointCloud&gt;("pointCloud.las");
 }</code></pre>
-<h2 id="42-资产加载流程"><a class="header" href="#42-资产加载流程">4.2 资产加载流程</a></h2>
+<h2 id="32-资产加载流程"><a class="header" href="#32-资产加载流程">3.2 资产加载流程</a></h2>
 <p>在 Bevy 引擎中，<code>AssetReader</code>、<code>AssetLoader</code>、<code>AssetSaver</code> 和 <code>AssetWriter</code> 都是资产系统的重要组成部分，它们各自承担着不同的职责。</p>
-<h3 id="421-assetloader"><a class="header" href="#421-assetloader">4.2.1 AssetLoader</a></h3>
+<h3 id="321-assetloader"><a class="header" href="#321-assetloader">3.2.1 AssetLoader</a></h3>
 <p><code>AssetLoader</code>是我们主要用于加载资产的核心类型，在第一章的自定义资产中，我们做了如下几件事情：</p>
 <ol>
 <li>使用<code>Asset</code>指令定义一个<code>PointCloud</code>资产</li>
@@ -333,7 +333,7 @@ fn load_pointcloud(
          //我们可以对这个默认对象做一些更改
     });
 }</code></pre>
-<h3 id="422-assetreader"><a class="header" href="#422-assetreader">4.2.2 AssetReader</a></h3>
+<h3 id="322-assetreader"><a class="header" href="#322-assetreader">3.2.2 AssetReader</a></h3>
 <p>在为<code>LasLoader</code>实现异步的<code>load</code>方法时，你可能已经注意到了有一个<code>Reader</code>参数，他是一个类型擦除的<code>bevy_asset::io::Reader</code>特型对象，用于异步地将字节数据读取到缓冲区中。而这个特型对象，正是<code>AssetReader</code>的<code>read</code>方法返回的。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -358,10 +358,10 @@ fn load_pointcloud(
 <span class="boring">}</span></code></pre>
 <p><code>AssetReader</code>和<code>AssetLoader</code>都用于资产的加载，但是他们负责的层级是完全不同的。<strong><code>AssetReader</code>为不同的平台提供了一个统一的、异步的加载方式，使得我们的游戏能够在每个平台上以相同的方式读取资产；而<code>AssetLoader</code>负责将数据解析成正确的格式，以供程序的正确使用。</strong></p>
 <p>大多数情况下，我们可以直接使用内置的<code>AssetReader</code>不需要对其进行自定义，但如果你需要在这个环节进行一些操作，那么Bevy也提供了相应的方法让我们能够重写我们自己的<code>Reader</code>。详细的细节可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy_asset/io/trait.AssetReader.html#tymethod.read">文档</a>和<a href="https://github.com/bevyengine/bevy/blob/main/examples/asset/custom_asset_reader.rs">示例</a>。</p>
-<h3 id="423-assetsaver与assetwriter"><a class="header" href="#423-assetsaver与assetwriter">4.2.3 AssetSaver与AssetWriter</a></h3>
+<h3 id="323-assetsaver与assetwriter"><a class="header" href="#323-assetsaver与assetwriter">3.2.3 AssetSaver与AssetWriter</a></h3>
 <p>理解了<code>AssetReader</code>与<code>AssetLoader</code>的关系，我们可以猜到应该还有两个用于保存资产到本地的类型，这些类型就是<code>AssetWriter</code>与<code>AssetSaver</code>，他们的关系是类似的：<code>AssetWriter</code>提供了一个统一的、异步的写入方式，将我们的资产写入到文件系统中，而<code>AssetSaver</code>则负责将数据转换成需要保存的格式。二者的具体使用方法可以查看<a href="https://doc.qu1x.dev/bevy_trackball/bevy_asset/saver/trait.AssetSaver.html">文档</a>，需要为<code>AssetSaver</code>实现一个<code>save</code>方法，该方法和<code>load</code>非常相似，这里不再赘述。</p>
-<h2 id="43-资产加载"><a class="header" href="#43-资产加载">4.3 资产加载</a></h2>
-<h3 id="431-内嵌资产"><a class="header" href="#431-内嵌资产">4.3.1 内嵌资产</a></h3>
+<h2 id="33-资产加载"><a class="header" href="#33-资产加载">3.3 资产加载</a></h2>
+<h3 id="331-内嵌资产"><a class="header" href="#331-内嵌资产">3.3.1 内嵌资产</a></h3>
 <p>有些时候，我们希望将资产打包进入二进制程序中，然后在程序中直接读取这些资产而不是从硬盘里加载。例如，我们可能编写了一些wgsl着色器而又不想将这些代码作为文件存储在磁盘里，这时就需要将其直接内嵌在二进制的程序中，不过我们会需要一些额外的手段来告诉Bevy如何读取这些内嵌的资源。</p>
 <p>Bevy中使用宏来嵌入资产到程序中并读取，他们是<code>embedded_asset!</code>宏和<code>load_embedded_asset!</code>宏。</p>
 <p><code>embedded_asset!</code>宏接受两个或三个参数，当接受两个参数的时候，第一个是当前<code>app</code>的可变引用，第二个是需要内嵌的资源的相对于当前目录的路径。假设我们的项目目录如下，我们现在想要将rock.wgsl内嵌到程序中。</p>
@@ -393,7 +393,7 @@ let shader = load_embedded_asset!(&amp;asset_server, "rock.wgsl");
 let shader = asset_server.load::&lt;Shader&gt;("embedded://bevy_rock/render/rock.wgsl");
 <span class="boring">}</span></code></pre>
 <p>在Bevy 0.12之前，你可能会看到名为<code>load_internal_asset!</code>的宏，该宏的作用和上面是一样的，不过目前已经被<code>embedded_asset!</code>取代，因此不建议继续使用。</p>
-<h3 id="432-web资产"><a class="header" href="#432-web资产">4.3.2 web资产</a></h3>
+<h3 id="332-web资产"><a class="header" href="#332-web资产">3.3.2 web资产</a></h3>
 <p>另一类比较特殊的资产就是从web上加载的资产，在网络上加载一些内如，我们需要一点额外的支持：引入<code>WebAssetPlugin</code>插件并开启http特征。</p>
 <pre class="playground"><code class="language-rust">use bevy::{asset::io::web::WebAssetPlugin, prelude::*};
 
@@ -415,7 +415,7 @@ fn main() {
 }
 
 <span class="boring">}</span></code></pre>
-<h2 id="44-资产事件"><a class="header" href="#44-资产事件">4.4 资产事件</a></h2>
+<h2 id="34-资产事件"><a class="header" href="#34-资产事件">3.4 资产事件</a></h2>
 <p>资产会在加载的过程中发出一系列Message，如果你需要对这些事件做出一些响应，在bevy中这些事件是一个AssetEvent的枚举类型，可以看到当资产被添加、更改、移除、加载完成时都会发出一些事件，并且在其中保存了对应的资产的ID。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {

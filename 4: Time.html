@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ee7819df.js";
+            window.path_to_searchindex_js = "searchindex-f7393dc0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-881bfa28.js"></script>
+        <script src="toc-bff3285f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -175,7 +175,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
-<h2 id="51-timer"><a class="header" href="#51-timer">5.1 Timer</a></h2>
+<h2 id="41-timer"><a class="header" href="#41-timer">4.1 Timer</a></h2>
 <p>一个<code>Timer</code>是一个bevy_time子crate中的类型，代表了bevy中的定时器，通过该类型，我们可以实现计时功能，其主要的两个构造方式如下：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -228,7 +228,7 @@ assert_eq!(timer.is_finished(), true);
 timer.tick(Duration::from_secs_f32(0.5));
 assert_eq!(timer.is_finished(), true);
 <span class="boring">}</span></code></pre>
-<h2 id="52--time"><a class="header" href="#52--time">5.2  Time</a></h2>
+<h2 id="42--time"><a class="header" href="#42--time">4.2  Time</a></h2>
 <p>Bevy中内置了一些时间信息，其定义如下，这些<code>Time</code><strong>以全局资源的形式存在</strong>，通过这些我们可以获得Bevy的时间信息，从而指定时间相关的任务，例如定时运行某些系统等。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -285,8 +285,8 @@ assert_eq!(timer.is_finished(), true);
 <p><strong>在<code>RunFixedMainLoop</code>阶段执行的系统，我们看到的<code>Time</code>是<code>Time&lt;Fixed&gt;</code>。</strong></p>
 <p><strong>在<code>Update</code>阶段执行的系统，我们看到的<code>Time</code>是<code>Time&lt;Virtual&gt;</code>。</strong></p>
 <p><strong>如果需要获得现实世界的时间，我们则需要使用<code>Time&lt;Real&gt;</code>。</strong></p>
-<h2 id="53-time与timer的配合使用"><a class="header" href="#53-time与timer的配合使用">5.3 Time与Timer的配合使用</a></h2>
-<h3 id="531-定时执行系统"><a class="header" href="#531-定时执行系统">5.3.1 定时执行系统</a></h3>
+<h2 id="43-time与timer的配合使用"><a class="header" href="#43-time与timer的配合使用">4.3 Time与Timer的配合使用</a></h2>
+<h3 id="431-定时执行系统"><a class="header" href="#431-定时执行系统">4.3.1 定时执行系统</a></h3>
 <p>很多时候，我们想要创建一个定时任务，利用Timer和Time，我们可以轻轻松松完成这件事，例如下面这样。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -305,7 +305,7 @@ pub fn on_real_timer(duration: Duration) -&gt; impl FnMut(Res&lt;Time&lt;Real&gt
 app.add_system(Update,some_system.run_if(on_real_timer(Durarion::from_sec_32(1.0))))
 <span class="boring">}</span></code></pre>
 <p>我们不需要重复编写这些功能，Bevy在bevy_time中已经为我们提供了一套常用的conditions，读者可以查看<a href="https://docs.rs/bevy_time/0.17.3/bevy_time/common_conditions/index.html">文档</a>。</p>
-<h3 id="532-定时执行系统进阶"><a class="header" href="#532-定时执行系统进阶">5.3.2 定时执行系统（进阶）</a></h3>
+<h3 id="432-定时执行系统进阶"><a class="header" href="#432-定时执行系统进阶">4.3.2 定时执行系统（进阶）</a></h3>
 <p>上面的方式只适用于简单的情况，更多时候我们还需要进行一定的控制，这时我们也可以使用上面的方式，但是我们这时候需要利用一个<code>Component</code>来存储<code>Timer</code>并手动利用<code>tick</code>更新时间，就像下面这样。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -324,7 +324,7 @@ fn animate_sprite(
     }
 }
 <span class="boring">}</span></code></pre>
-<h3 id="533-时间相关的变量"><a class="header" href="#533-时间相关的变量">5.3.3 时间相关的变量</a></h3>
+<h3 id="433-时间相关的变量"><a class="header" href="#433-时间相关的变量">4.3.3 时间相关的变量</a></h3>
 <p>Bevy的示例中充满了这种用法，我们可以获得<code>Time</code>，然后利用<code>Time</code>来更新某些变量。例如我们可以通过<code>delta_secs</code>方法获得每帧相隔的时间，然后乘以系数并不断累加到某个位置，这可以做到让该变量随着时间不断更新的效果。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
