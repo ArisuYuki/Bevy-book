@@ -1,4 +1,4 @@
-## 4.1 回顾Asset
+## 3.1 回顾Asset
 
 资产是需要加载到游戏中的资源，通常来自于各种硬盘里的文件，例如图像、模型、材质、字体、音频等等等等。由于这些资源的加载往往需要耗费大量时间，因此Bevy里这些资产的加载往往都是以异步的形式以避免阻塞游戏循环。在Bevy中，我们可以使用`AssetServer`从硬盘里加载资产，使用`Assets<T>`来存储已经加载的各类资产。
 
@@ -6,7 +6,7 @@
 
 与Asset相关的类型和结构很多，不过大多数时候我们都不需要和他们打交道，如果仅仅是使用，我们只需要和`AssetServer`还有`Assets<T>`接触就足够了。
 
-### 4.1.1 AssetServer
+### 3.1.1 AssetServer
 
 `AssetServer`作为一种全局资源，可以使用之前我们加载资源的方式以`Res`来获取。默认情况下，加载的资产都相对于项目目录下的assets文件夹，要修改这个默认行为，可以修改`BEVY_ASSET_ROOT`环境变量来指定加载资产的目录。
 
@@ -41,7 +41,7 @@ fn on_asset_event(
 }
 ```
 
-### 4.1.2  Assets
+### 3.1.2  Assets
 
 **`Assets<T>`** 是一个键值对集合，存储了特定类型 `T` 的所有**实际资产数据**。当`AssetServer`**成功加载资源后**，将会将真正的数据保存在对应的**`Assets<T>`** 中，如果需要获得真正的数据，则需要使用相关的句柄和对应类型的`Assets`
 
@@ -58,7 +58,7 @@ fn read_image_data(images: ResMut<Assets<Image>>, share_image: Res<ShareImage>) 
 }
 ```
 
-### 4.1.3 自定义资产
+### 3.1.3 自定义资产
 
 如果我们的资产是某种Bevy不支持的格式时，必须手动编写代码和Bevy进行交互来定义我们的**资产类型**、资产的**加载方法**、资产的**设置**以及加载时可能的**错误**。
 
@@ -144,11 +144,11 @@ fn load_pointcloud(
 }
 ```
 
-## 4.2 资产加载流程
+## 3.2 资产加载流程
 
 在 Bevy 引擎中，`AssetReader`、`AssetLoader`、`AssetSaver` 和 `AssetWriter` 都是资产系统的重要组成部分，它们各自承担着不同的职责。
 
-### 4.2.1 AssetLoader
+### 3.2.1 AssetLoader
 
 `AssetLoader`是我们主要用于加载资产的核心类型，在第一章的自定义资产中，我们做了如下几件事情：
 
@@ -183,7 +183,7 @@ fn load_pointcloud(
 }
 ```
 
-### 4.2.2 AssetReader
+### 3.2.2 AssetReader
 
 在为`LasLoader`实现异步的`load`方法时，你可能已经注意到了有一个`Reader`参数，他是一个类型擦除的`bevy_asset::io::Reader`特型对象，用于异步地将字节数据读取到缓冲区中。而这个特型对象，正是`AssetReader`的`read`方法返回的。
 
@@ -212,13 +212,13 @@ impl AssetLoader for LasLoader {
 
 大多数情况下，我们可以直接使用内置的`AssetReader`不需要对其进行自定义，但如果你需要在这个环节进行一些操作，那么Bevy也提供了相应的方法让我们能够重写我们自己的`Reader`。详细的细节可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/io/trait.AssetReader.html#tymethod.read)和[示例](https://github.com/bevyengine/bevy/blob/main/examples/asset/custom_asset_reader.rs)。
 
-### 4.2.3 AssetSaver与AssetWriter
+### 3.2.3 AssetSaver与AssetWriter
 
 理解了`AssetReader`与`AssetLoader`的关系，我们可以猜到应该还有两个用于保存资产到本地的类型，这些类型就是`AssetWriter`与`AssetSaver`，他们的关系是类似的：`AssetWriter`提供了一个统一的、异步的写入方式，将我们的资产写入到文件系统中，而`AssetSaver`则负责将数据转换成需要保存的格式。二者的具体使用方法可以查看[文档](https://doc.qu1x.dev/bevy_trackball/bevy_asset/saver/trait.AssetSaver.html)，需要为`AssetSaver`实现一个`save`方法，该方法和`load`非常相似，这里不再赘述。
 
-## 4.3 资产加载
+## 3.3 资产加载
 
-### 4.3.1 内嵌资产
+### 3.3.1 内嵌资产
 
 有些时候，我们希望将资产打包进入二进制程序中，然后在程序中直接读取这些资产而不是从硬盘里加载。例如，我们可能编写了一些wgsl着色器而又不想将这些代码作为文件存储在磁盘里，这时就需要将其直接内嵌在二进制的程序中，不过我们会需要一些额外的手段来告诉Bevy如何读取这些内嵌的资源。
 
@@ -260,7 +260,7 @@ let shader = asset_server.load::<Shader>("embedded://bevy_rock/render/rock.wgsl"
 
 在Bevy 0.12之前，你可能会看到名为`load_internal_asset!`的宏，该宏的作用和上面是一样的，不过目前已经被`embedded_asset!`取代，因此不建议继续使用。
 
-### 4.3.2 web资产
+### 3.3.2 web资产
 
 另一类比较特殊的资产就是从web上加载的资产，在网络上加载一些内如，我们需要一点额外的支持：引入`WebAssetPlugin`插件并开启http特征。
 
@@ -288,7 +288,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 ```
 
-## 4.4 资产事件
+## 3.4 资产事件
 
 资产会在加载的过程中发出一系列Message，如果你需要对这些事件做出一些响应，在bevy中这些事件是一个AssetEvent的枚举类型，可以看到当资产被添加、更改、移除、加载完成时都会发出一些事件，并且在其中保存了对应的资产的ID。
 

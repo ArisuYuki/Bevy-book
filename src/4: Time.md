@@ -1,4 +1,4 @@
-## 5.1 Timer
+## 4.1 Timer
 
 一个`Timer`是一个bevy_time子crate中的类型，代表了bevy中的定时器，通过该类型，我们可以实现计时功能，其主要的两个构造方式如下：
 
@@ -55,7 +55,7 @@ timer.tick(Duration::from_secs_f32(0.5));
 assert_eq!(timer.is_finished(), true);
 ```
 
-## 5.2  Time
+## 4.2  Time
 
 Bevy中内置了一些时间信息，其定义如下，这些`Time`**以全局资源的形式存在**，通过这些我们可以获得Bevy的时间信息，从而指定时间相关的任务，例如定时运行某些系统等。
 
@@ -121,9 +121,9 @@ pub fn run_fixed_main_schedule(world: &mut World) {
 
 **如果需要获得现实世界的时间，我们则需要使用`Time<Real>`。**
 
-## 5.3 Time与Timer的配合使用
+## 4.3 Time与Timer的配合使用
 
-### 5.3.1 定时执行系统
+### 4.3.1 定时执行系统
 
 很多时候，我们想要创建一个定时任务，利用Timer和Time，我们可以轻轻松松完成这件事，例如下面这样。
 
@@ -145,7 +145,7 @@ app.add_system(Update,some_system.run_if(on_real_timer(Durarion::from_sec_32(1.0
 
 我们不需要重复编写这些功能，Bevy在bevy_time中已经为我们提供了一套常用的conditions，读者可以查看[文档](https://docs.rs/bevy_time/0.17.3/bevy_time/common_conditions/index.html)。
 
-### 5.3.2 定时执行系统（进阶）
+### 4.3.2 定时执行系统（进阶）
 
 上面的方式只适用于简单的情况，更多时候我们还需要进行一定的控制，这时我们也可以使用上面的方式，但是我们这时候需要利用一个`Component`来存储`Timer`并手动利用`tick`更新时间，就像下面这样。
 
@@ -166,7 +166,7 @@ fn animate_sprite(
 }
 ```
 
-### 5.3.3 时间相关的变量
+### 4.3.3 时间相关的变量
 
 Bevy的示例中充满了这种用法，我们可以获得`Time`，然后利用`Time`来更新某些变量。例如我们可以通过`delta_secs`方法获得每帧相隔的时间，然后乘以系数并不断累加到某个位置，这可以做到让该变量随着时间不断更新的效果。
 
