@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ef5b4a70.js";
+            window.path_to_searchindex_js = "searchindex-ca1f233b.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-79a1dbf2.js"></script>
@@ -395,7 +395,226 @@
 <blockquote>
 <p>与欧拉角对三个角度分别进行线性插值不同，四元数使用 <strong>球面线性插值（Slerp）</strong>。它能保证物体沿着四维超球面上最短的弧线进行平滑转动。无论起始姿态和目标姿态相差多大，球面线性插值都能保证旋转过程是匀速的。因为不涉及角度分解，即便经过 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6741em;"></span><span class="mord">9</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6741em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∘</span></span></span></span></span></span></span></span></span></span></span> 这样的位置，插值过程依然极其丝滑。</p>
 </blockquote>
-<h2 id="transform实战"><a class="header" href="#transform实战">Transform实战</a></h2>
+<h2 id="transform示例"><a class="header" href="#transform示例">Transform示例</a></h2>
+<p>Bevy中默认的数学运算库叫做glam，Bevy将其重新导出为了bevy_math这个crate。基本上来说，这个crate中包含了一些基本的数学类型，例如我们上面讲过的向量、矩阵、四元数、还有一些额外的辅助函数和数学曲线生成等，其命名方式非常直观，感兴趣的读者可以查看相关的<a href="https://docs.rs/bevy_math/latest/bevy_math/">文档</a>即可，这里我们不再赘述，只是简单的列出一些常用的类型。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>含义</th><th>类型</th></tr>
+</thead>
+<tbody>
+<tr><td>二维向量</td><td>Vec2</td></tr>
+<tr><td>三维向量</td><td>Vec3</td></tr>
+<tr><td>4x4矩阵</td><td>Mat4</td></tr>
+<tr><td>四元数</td><td>Quat</td></tr>
+</tbody>
+</table>
+</div>
+<p>让我们来看看，<code>Transfrom</code>里到底有什么。翻开源代码，可以看到一个<code>Transform</code>包含了三个部分：平移、旋转、缩放。而且旋转是使用四元数来表达的。</p>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>如果实体有父实体，那么这些变换是相对于父实体的位置而言的。（详情见第2章中的Relationship）</p>
+<p>如果实体没有父实体，那么是相对于世界坐标原点而言的</p>
+</blockquote>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Transform {
+    pub translation: Vec3,
+    pub rotation: Quat,
+    pub scale: Vec3,
+}
+<span class="boring">}</span></code></pre>
+<p>那么？我们怎么知道实体在世界坐标系中的坐标呢？bevy为我们提供了一个<code>GlobalTransform</code>组件，当你在实体上插入<code>Transfrom</code>时，这个组件也会被同时插入。不过一般而言，你不能直接修改实体的<code>GlobalTransform</code>，这是由bevy维护的一个内部的坐标状态，通过更改组件的<code>Transfrom</code>，bevy会自动更新<code>GlobalTransform</code>。</p>
+<p>终于说完了这些枯燥的理论知识。还是让我们来看看我们的代码到底应该是怎么工作的吧！这里我们以bevy的最复杂的<code>Transfrom</code><a href="https://github.com/bevyengine/bevy/blob/main/examples/transforms/align.rs">例子</a>为例来讲解，至于其他的平移和缩放，相信聪明的你能从其他简单的bevy官方仓库的例子里一下子就看懂。</p>
+<p>这个比较复杂的例子的名字叫做align，运行<code>cargo run --example align</code>，可以发现例子做了一件很简单的事情：当我们按下R随机生成一个旋转轴，按下T时将飞船对齐到旋转轴。</p>
+<p><img src="./image/chapter5.5/1.png" alt="1"></p>
+<p>让我们来看看代码都写了些什么？首先，例子里定义了这些组件，这些组件都非常的简单，只有一些需要额外的特殊说明。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>
+// 这是我们的飞船上的一些组件
+#[derive(Component, Default)]
+struct Ship {
+    /// 用以存储按下T时应该旋转到的角度
+    target_transform: Transform,
+    /// 一个用来标识飞船当前是否正在旋转的变量，如果飞船还没旋转完成，那么要阻止后续的操作
+    in_motion: bool,
+}
+// Dir3只是一个简单的单位向量，用来代表方向，就是一个归一化的Vec3
+// 这对应了图中的两个白色轴
+#[derive(Component)]
+struct RandomAxes(Dir3, Dir3);
+
+// 一个简单的标识符，用来标识上面的那组文字
+#[derive(Component)]
+struct Instructions;
+
+// 当前鼠标是否按下，我们需要这个状态因为我们需要按下之后才能拖动视角
+#[derive(Resource)]
+struct MousePressed(bool);
+
+// 一个随机数生成器而已，不太需要关心
+#[derive(Resource)]
+struct SeededRng(ChaCha8Rng);
+<span class="boring">}</span></code></pre>
+<p>第二步，让我们来看看 setup逻辑里都做了一些什么事？</p>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>注意！bevy中的物体的局部坐标系是**-Z轴<strong>是视野正前方，向上是Y轴，X和YZ组成</strong>右手直角坐标系**。</p>
+<p>世界坐标系中，向上是Y轴，从屏幕内只指向屏幕前的你是Z轴，X和YZ组成<strong>右手直角坐标系</strong></p>
+</blockquote>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
+    mut materials: ResMut&lt;Assets&lt;StandardMaterial&gt;&gt;,
+    asset_server: Res&lt;AssetServer&gt;,
+) {
+    // 创建了一个随机数生成器
+    let mut seeded_rng = ChaCha8Rng::seed_from_u64(19878367467712);
+
+    // 创建了我们的相机
+    // 重点来了！这里终于见到了我们的Transform，前面我们说的相机本身就是一个带有Transfrom的实体
+    // 其中视角的朝向就又旋转矩阵所决定，这里的意思是：请给我一个这样的Transform
+    // 这个Transform的位置在坐标(3,2.5,4)处，并且他的旋转四元数刚好让视线(z轴)朝着坐标系原点
+    // 并且，请保证我的相机自己的局部Y轴和世界坐标系的Y轴“一致”。
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(3., 2.5, 4.).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
+
+    // 没什么用的东西
+    commands.spawn((
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(100.0, 100.0))),
+        MeshMaterial3d(materials.add(Color::srgb(0.3, 0.5, 0.3))),
+        Transform::from_xyz(0., -2., 0.),
+    ));
+
+    // 一盏灯光，位置在(4.0, 7.0, -4.0)
+    commands.spawn((
+        PointLight {
+            shadow_maps_enabled: true,
+            ..default()
+        },
+        Transform::from_xyz(4.0, 7.0, -4.0),
+    ));
+
+    // 随机生成两个轴
+    let first = seeded_rng.random();
+    let second = seeded_rng.random();
+    commands.spawn(RandomAxes(first, second));
+
+    // 加载我glft模型（还记得怎么加载模型吗？这是一个实体树）
+    // 然后让初始化时让飞船的目标角度对准上面两个轴（这里的关键是，什么才算对准？稍后我们揭晓）
+    commands.spawn((
+        SceneRoot(
+            asset_server
+                .load(GltfAssetLabel::Scene(0).from_asset("models/ship/craft_speederD.gltf")),
+        ),
+        Ship {
+            target_transform: random_axes_target_alignment(&amp;RandomAxes(first, second)),
+            ..default()
+        },
+    ));
+
+    // 显示文字
+    commands.spawn((
+        Text::new(
+            "The bright red axis is the primary alignment axis, and it will always be\n\
+            made to coincide with the primary target direction (white) exactly.\n\
+            The fainter red axis is the secondary alignment axis, and it is made to\n\
+            line up with the secondary target direction (gray) as closely as possible.\n\
+            Press 'R' to generate random target directions.\n\
+            Press 'T' to align the ship to those directions.\n\
+            Click and drag the mouse to rotate the camera.\n\
+            Press 'H' to hide/show these instructions.",
+        ),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+        Instructions,
+    ));
+
+    commands.insert_resource(MousePressed(false));
+    commands.insert_resource(SeededRng(seeded_rng));
+}
+<span class="boring">}</span></code></pre>
+<p>好吧，上面的代码其实看起来简单，但是蕴含的信息其实很多。让我们首先来看看这一行 <code>Transform::from_xyz(3., 2.5, 4.).looking_at(Vec3::ZERO, Vec3::Y)</code>。这行代码非常有意思，后面的<code>looking_at(Vec3::ZERO, Vec3::Y)</code>的第二个参数是做什么的？</p>
+<p>想象一下。当你的把视线中心对准这一行文字，你是不能确定自己的位置的。为什么？因为你可以始终对准这个点，然后以视线轴为中心，左右旋转自己的头。为了确定到底盯着原点看的时候头顶应该朝哪儿，因此我们才需要一个参考轴，这就是世界坐标系的Y轴（朝正上方）。</p>
+<p>因此这段代码的后半段的意思是：我要看着这个点，而且我的头顶要朝着天。有意思的是，如果你把Vec3::Y改成-Vue3::Y，你会发现你得把屏幕倒过来看画面才正常。</p>
+<p>在让我们看看<code>random_axes_target_alignment</code>，这个函数到底做了什么？</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn random_axes_target_alignment(random_axes: &amp;RandomAxes) -&gt; Transform {
+    let RandomAxes(first, second) = random_axes;
+    Transform::IDENTITY.aligned_by(Vec3::NEG_Z, *first, Vec3::X, *second)
+}
+<span class="boring">}</span></code></pre>
+<p>这个函数一共其实就两行（其实有用的就一行）。不过这一行代码，也有很丰富的信息量。首先<code>Transform::IDENTITY</code>构造了一个单位变换。什么是单位变换？其实等同于坐标为(0,0,0)，旋转为单位四元数(不旋转)，缩放为1的一个<code>Transform</code>。然后，调用了<code>aligned_by</code>使其**“对齐”**随机生成的两个轴<code>first</code>和<code>second</code>。</p>
+<p>如果你观察力足够强，你肯定能发现很多问题。由于我们前两个轴是随机生成的，他们可不一定是正交的。因此我们要旋转的话是根本不可能完整对齐的。所以，这里才需要四个参数，而且这四个参数的名称很有意思。分别是主轴、主轴方向、副轴、副轴方向。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn aligned_by(
+    mut self,
+    main_axis: impl TryInto&lt;Dir3&gt;,
+    main_direction: impl TryInto&lt;Dir3&gt;,
+    secondary_axis: impl TryInto&lt;Dir3&gt;,
+    secondary_direction: impl TryInto&lt;Dir3&gt;,
+) -&gt; Self {
+    self.align(
+        main_axis,
+        main_direction,
+        secondary_axis,
+        secondary_direction,
+    );
+    self
+}
+<span class="boring">}</span></code></pre>
+<p>这里的对齐，和我们上面讲的<code>looking_at</code>其实如出一辙。上面的代码翻译成人话，可以这样来理解：请给我这样一个四元数，让我旋转后我的正前方(<code>Vec3::NEG_Z</code>)朝着<code>first</code>，同时，我希望我的右侧(<code>Vec3::X</code>)<strong>尽可能</strong>的和<code>second</code>重合。如果实在重合不了，请给我找一个最小的差。</p>
+<p>至于其余的代码，相信聪明的你一眼就能看明白了，这些代码不过是每当我们按下R时，重新生成一对轴然后保存。按下T时解开锁。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>if keyboard.just_pressed(KeyCode::KeyR) {
+    // Randomize the target axes
+    let first = seeded_rng.0.random();
+    let second = seeded_rng.0.random();
+    **random_axes = RandomAxes(first, second);
+
+    // Stop the ship and set it up to transform from its present orientation to the new one
+    ship.in_motion = false;
+    ship.target_transform = random_axes_target_alignment(&amp;random_axes);
+}
+if keyboard.just_pressed(KeyCode::KeyT) {
+    ship.in_motion ^= true;
+}
+<span class="boring">}</span></code></pre>
+<p>然后，利用几个简单的api，就可以控制飞船的<code>Transform</code>旋转到我们生成的角度。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn rotate_ship(ship: Single&lt;(&amp;mut Ship, &amp;mut Transform)&gt;, time: Res&lt;Time&gt;) {
+    let (mut ship, mut ship_transform) = ship.into_inner();
+
+    if !ship.in_motion {
+        return;
+    }
+
+    let target_rotation = ship.target_transform.rotation;
+
+    ship_transform
+        .rotation
+        .smooth_nudge(&amp;target_rotation, 3.0, time.delta_secs());
+
+    if ship_transform.rotation.angle_between(target_rotation) &lt;= f32::EPSILON {
+        ship.in_motion = false;
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>至于剩下的示例，相信你现在已经有足够的水平去看得懂了，这里就不再赘述。</p>
 
                     </main>
 
