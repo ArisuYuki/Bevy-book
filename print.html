@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f7393dc0.js";
+            window.path_to_searchindex_js = "searchindex-2811c7ac.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-bff3285f.js"></script>
@@ -3493,7 +3493,7 @@ fn setup(
 </div>
 <h3 id="722-使用glbgltf"><a class="header" href="#722-使用glbgltf">7.2.2 使用glb/gltf</a></h3>
 <p>在上面一节里，我们已经介绍了如何加载glb文件，并理解了加载后glb文件的构成，现在，我们需要来看看如何在ecs系统中使用这些加载好的glb文件。</p>
-<p>先给出一个例，这个系统会查询一个有<code>MovedScene</code>组件的glb实体，然后对他的每一个子实体都进行修改。这个例子里有着很多有趣的细节。</p>
+<p>先给出一个例子，这个系统会查询一个有<code>MovedScene</code>组件的glb实体，然后对他的每一个子实体都进行修改。这个例子里有着很多有趣的细节。</p>
 <p>首先，这个例子告诉我们，如果我们的glb中没有把模型合并，那么我们加载的模型并不是一个单一的实体。通过使用<code>Children</code>的方式可以发现，<strong>Scene是一簇有着父子关系的实体</strong>，整个场景通过<code>children</code>和<code>ChildOf</code>来组织(详情见第2章)。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -3529,7 +3529,7 @@ fn move_scene_entities(
     }
 }
 <span class="boring">}</span></code></pre>
-<p>运行这些代码，可以发现他们的效果如下所示。因为每个子实体都有自己独立的<code>transform</code>，所以最终的效果会让模型的每个部分错位平移。</p>
+<p>运行这些代码，可以发现他们的效果如下所示。因为每个子实体都有自己独立的<code>transform</code>，所以最终的效果会让模型的每个部分错位平移。这正是我们在第六章里多次提到的！<strong>子实体的transform是相对于父实体的。</strong></p>
 <p><img src="image/chapter7/1.png" alt="image-20260106114325464"></p>
 <p>现在我们知道了，Scene是一簇有着父子关系的实体，那么如果我们需要访问其中的某一个或者某一些子实体的时候该怎么做？这可以通过下面这个例子来解释，我们利用了一个名为<code>GltfMaterialName</code>的组件来锁定正确的子实体。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -3599,7 +3599,220 @@ commands.spacwn((
 <span class="boring">}</span></code></pre>
 <p>从glb文件内加载的模型上，带有很多的组件，这些组件包括：<code>MeshMaterial3d</code>、<code>GltfMeshName</code>、<code>GltfMaterialName</code>、各种<code>Extras</code>等等。其中<code>MeshMaterial3d</code>描述了实体的材质，后两者描述了实体的网格和材质的名字，<code>Extras</code>则是一些附加的文本信息。这其中，最重要的是<code>MeshMaterial3d</code>，在下一章中，我们将会使用<code>MeshMaterial3d</code>来动态的修改一个已经加载好的模型或者shape的材质。</p>
 <h3 id="723-mesh-animation"><a class="header" href="#723-mesh-animation">7.2.3 mesh animation</a></h3>
-<p>待写作</p>
+<p>只有一坨什么也不能做的模型也太无聊了，现在，让我们来研究研究如何播放模型的动画。</p>
+<p>要播放动画，不管怎样，我们都要先拿到模型，<strong>Gltf模型其实是一种Asset</strong>，因此我们在第三章中讨论的如何加载资产的那一整套，都可以完美的平移过来。</p>
+<p>首先我们需要一个<code>Resource</code>来存储句柄，以便在不同的系统之间传递。当然也可以传递一些别的东西，不过目前而言我们主要关心的是其中的<code>Handle</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Resource)]
+struct Fox(Handle&lt;Gltf&gt;);
+<span class="boring">}</span></code></pre>
+<p>然后，在<code>startup</code>阶段我们的<code>setup</code>系统中，只需要直接加载即可。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn setup(
+    mut commands: Commands,
+    asset_server: Res&lt;AssetServer&gt;,
+    mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
+    mut materials: ResMut&lt;Assets&lt;StandardMaterial&gt;&gt;,
+) {
+    commands.insert_resource(Fox(asset_server.load(FOX_PATH)));
+    //....
+}
+<span class="boring">}</span></code></pre>
+<p>在这里，我们将用上我们在第2章中介绍的条件运行(参见2.3.2 run_if)。我们希望在资源加载完成并且配置完成之前，不要运行我们的动画系统。（或者，我们也可以采用state的方法来切换系统的运行，你能想到怎么做吗？）</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 存储动画相关的资源
+#[derive(Resource)]
+struct Animations {
+    // 至于AnimationNodeIndex和AnimationGraph是什么，等待下文我们揭晓
+    animations: Vec&lt;AnimationNodeIndex&gt;,
+    graph_handle: Handle&lt;AnimationGraph&gt;,
+}
+
+// 这个系统在资产加载完成之前将会一直尝试运行
+app.add_systems(
+    Update,
+    spawn_fox_asset_when_ready.run_if(not(resource_exists::&lt;Animations&gt;)),
+)// 这个系统只有在加载完成后运行
+.add_systems(
+    Update,
+    keyboard_control.run_if(resource_exists::&lt;Animations&gt;),
+)
+<span class="boring">}</span></code></pre>
+<p>在<code>spawn_fox_asset_when_ready</code>系统中，我们依然采用我们的三板斧。使用<code>is_loaded_with_dependencies</code>来判断是否已经加载完成(详见3.1.1节，要时常复习才能温故知新！)</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn spawn_fox_asset_when_ready(
+    mut commands: Commands,
+    fox_handle: Res&lt;Fox&gt;,
+    asset_server: Res&lt;AssetServer&gt;,
+    gltfs: Res&lt;Assets&lt;Gltf&gt;&gt;,
+    mut graphs: ResMut&lt;Assets&lt;AnimationGraph&gt;&gt;,
+) {
+    // 如果尚未加载完成，那么先不执行
+    if !asset_server.is_loaded_with_dependencies(&amp;fox_handle.0) {
+        return;
+    }
+	// 然后后利用句柄来获得我们的资产，你还记得吗？
+    let fox = gltfs
+        .get(&amp;fox_handle.0)
+        .expect("a loaded asset should exist in the glTF assets collection");
+
+    // 很快你就会知道这里的三个动画对应了什么了
+    // 现在，只需要知道我们有了一个AnimationGraph类型的graph
+    // 还有了一个Vec&lt;NodeIndex&gt;类型的node_indices
+    let (graph, node_indices) = AnimationGraph::from_clips([
+        fox.named_animations["Run"].clone(),
+        fox.named_animations["Walk"].clone(),
+        fox.named_animations["Survey"].clone(),
+    ]);
+
+    // 保存这些动画信息，以便我们后续使用
+    let graph_handle = graphs.add(graph);
+    commands.insert_resource(Animations {
+        animations: node_indices,
+        graph_handle,
+    });
+
+    // 现在，我们才向bevy中添加真正的模型
+    commands
+        .spawn(SceneRoot(
+            fox.default_scene
+                .clone()
+                .expect("a default scene exists in this file"),
+        ))
+    	// 这里用到了observe，还记得observe有什么用吗？（详见2.7.1节，再次强调温故知新的重要性～）
+        .observe(setup_scene);
+}
+
+// 现在，每当SceneInstanceReady触发时，该函数将会被执行
+// 可是SceneInstanceReady是什么？他的完整路径是bevy::scene::SceneInstanceReady
+// 简而言之，这是bevy的一个内置事件，其定义如下，每当整个场景加载完成之后会被触发
+// pub struct SceneInstanceReady {
+//     pub entity: Entity,
+//     pub instance_id: InstanceId,
+// }
+// 而AnimationPlayer组件，是跟随scene自动添加的
+// 所以当SceneInstanceReady触发的时候，AnimationPlayer也已经存在
+fn setup_scene(
+    _ready: On&lt;SceneInstanceReady&gt;,
+    mut commands: Commands,
+    animations: Res&lt;Animations&gt;,
+    player: Single&lt;(Entity, &amp;mut AnimationPlayer)&gt;,
+) {
+    // 直接将内部的两个组件的所有权拿出来
+    let (entity, mut player) = player.into_inner();
+    // 然后我们需要new一个AnimationTransitions
+    // 如果你用过css，那么你一定也知道transition有什么用，这里的AnimationTransitions
+    // 也是一样的，当动画切换的时候，将会在动画之间插入平滑的过渡
+    let mut transitions = AnimationTransitions::new();
+	// 立刻开始重复播放第一个动画
+    transitions
+        .play(&amp;mut player, animations.animations[0], Duration::ZERO)
+        .repeat();
+	// 这里的commands.entity对应了我们在第2章介绍的EntityComands，还记得吗？
+    // 因此我们向scene根实体上，插入了这两个新的组件
+    commands
+        .entity(entity)
+        .insert(AnimationGraphHandle(animations.graph_handle.clone()))
+        .insert(transitions);
+}
+
+<span class="boring">}</span></code></pre>
+<p>这些代码看下来真是让人大汗淋漓。你可能心里会想，怎么那么多没见过的东西？<code>AnimationNodeIndex</code>是什么？<code>AnimationGraph</code>是什么？<code>AnimationTransitions</code>又是什么？<code>AnimationGraphHandle</code>又是什么？？</p>
+<p>让我们来一个个翻一翻源代码看看吧。<code>AnimationNodeIndex</code>其实只是一个别名，其本质上不过是一个含有u32类型的枚举罢了，这个数字标识了一个动画在gltf中的索引。这解释了为什么我们使用<code>transitions.play</code>方法时需要他。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// The index of either an animation or blend node in the animation graph.
+///
+/// These indices are the way that [animation players] identify each animation.
+///
+/// [animation players]: crate::AnimationPlayer
+pub type AnimationNodeIndex = NodeIndex&lt;u32&gt;;
+<span class="boring">}</span></code></pre>
+<p><code>AnimationGraph</code>是一个有向无环图，感兴趣的读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html">文档</a>，他其实相当复杂。描述了多个动画应该如何混合在一起。这是什么意思呢？我们在设计动画时，比如行走和攻击，一般都会设计成为两个单独的动画。如果不能将其混合起来一起播放，那么你行走的时候攻击时角色就会发生诡异的漂移（即脚不动但是角色还在跑，这在很多粗制滥造的游戏中很常见）。</p>
+<p>观察其代码，可以发现其由<code>graph</code>、<code>root</code>、<code>mask_groups</code>构成。<code>AnimationGraphNode</code>描述了如何对动画进行混合。<code>HashMap&lt;AnimationTargetId, u64&gt;</code>则描述了<strong>每块动画骨骼的uuid和掩码组</strong>之间的关系。掩码组是什么意思？</p>
+<p>为什么这里是一个<code>HashMap&lt;AnimationTargetId, u64&gt;</code>类型呢？其实这是一种典型的位图。u64类型含有64个bit位。因此每个骨骼，最多支持定义 <strong>64 个不同的掩码组</strong>。</p>
+<p>举个例子，一个复杂的模型可能有几百根骨骼，但你可能只想给其中的一部分（比如只有右手、或者只有上半身）分配掩码组。<code>HashMap</code> 只存储那些被分配了组的骨骼。你在 <code>mask_groups</code> 里把所有属于“上半身”的骨骼 ID 都标记为 <code>1 &lt;&lt; 0</code>（第 0 组）。<strong>节点 A</strong> 播放“奔跑”动画（不带掩码，作用于全身）。<strong>节点 B</strong> 播放“挥剑”或“换弹”动画，但你给这个节点设置一个掩码，指定它<strong>只作用于第 0 组</strong>。角色就可以一边跑（下半身由节点 A 控制），一边做攻击动作（上半身被节点 B 覆盖）。</p>
+<p>这方面的混合其实非常复杂，三言两语是搞不定的。如果对动画混合更感兴趣的读者，则需要查阅更详细的资料，这里就不再赘述。</p>
+<p>至于<code>AnimationGraphHandle</code>，这名字显而易见，由于<code>AnimationGraph</code>实际上是一种<code>asset</code>，因此当然也有对应的<code>handle</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct AnimationGraph {
+    pub graph: Graph&lt;AnimationGraphNode, ()&gt;,
+    pub root: NodeIndex,
+    pub mask_groups: HashMap&lt;AnimationTargetId, u64&gt;,
+}
+
+pub struct AnimationTargetId(pub Uuid);
+<span class="boring">}</span></code></pre>
+<p><code>AnimationTransitions</code>是一个用于控制动画之间过度的“增强型”<code>AnimationPlayer</code>。前面我们说当场景生成时，<code>AnimationPlayer</code>会自动添加到场景的任何根动画中。要使用<code>AnimationTransitions</code>你还必须把<code>AnimationGraphHandle</code>也同时放在一个实体上。仔细一想这也是正常的。因为动画过渡，本身就是利用动画图来实现的。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 第一次动画必须使用transitions.play而不能使用AnimationPlayer上的play方法
+// 因为AnimationTransitions需要记录动画的顺序，如果直接操作AnimationPlayer开始
+// 会导致AnimationTransitions 无法确定动画的切换关系，从而导致过渡效果通常不正确。
+let mut transitions = AnimationTransitions::new();
+transitions
+    .play(&amp;mut player, animations.animations[0], Duration::ZERO)
+    .repeat();
+// 并且我们把这两个组件都插入到了根上
+commands
+    .entity(entity)
+    .insert(AnimationGraphHandle(animations.graph_handle.clone()))
+    .insert(transitions);
+<span class="boring">}</span></code></pre>
+<p>最后，一切大功告成，只需要在按下不同的按键时切换不同动画即可。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn keyboard_control(
+    keyboard_input: Res&lt;ButtonInput&lt;KeyCode&gt;&gt;,
+    mut animation_players: Query&lt;(&amp;mut AnimationPlayer, &amp;mut AnimationTransitions)&gt;,
+    animations: Res&lt;Animations&gt;,
+    mut current_animation: Local&lt;usize&gt;,
+) {
+    // 这里的player是一个AnimationPlayer
+    // 而transitions则是我们插入的AnimationTransitions
+    for (mut player, mut transitions) in &amp;mut animation_players {
+        // 我们可以获取下一个动画的NodeIndex
+        let Some((&amp;playing_animation_index, _)) = player.playing_animations().next() else {
+            continue;
+        };
+		// 当按下特定的按键时，可以控制播放器的行为，比如播放暂停
+        if keyboard_input.just_pressed(KeyCode::Space) {
+            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
+            if playing_animation.is_paused() {
+                playing_animation.resume();
+            } else {
+                playing_animation.pause();
+            }
+        }
+        // 还可以控制播放速度
+         if keyboard_input.just_pressed(KeyCode::ArrowUp) {
+            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
+            let speed = playing_animation.speed();
+            playing_animation.set_speed(speed * 1.2);
+        }
+        // 对于动画的切换，我们需要计算下一个索引，并重新使用transitions来切换
+        // 必须使用transitions.play()!否则过渡会出问题
+        if keyboard_input.just_pressed(KeyCode::Enter) {
+            *current_animation = (*current_animation + 1) % animations.animations.len();
+            transitions
+                .play(
+                    &amp;mut player,
+                    animations.animations[*current_animation],
+                    Duration::from_millis(250),
+                )
+                .repeat();
+        }
+
+       // ..... 等等的类似逻辑
+    }
+}
+
+<span class="boring">}</span></code></pre>
 <h2 id="73-meshmaterial3d"><a class="header" href="#73-meshmaterial3d">7.3 MeshMaterial3d</a></h2>
 <p>与<code>Mesh2d</code>对应的<code>MeshMaterial2d</code>相同，<code>Mesh3d</code>也对应了<code>MeshMaterial3d</code>。如果没有<code>MeshMaterial3d</code>只有<code>Mesh3d</code>，窗口上也不会渲染任何东西。</p>
 <h3 id="731-standardmaterial"><a class="header" href="#731-standardmaterial">7.3.1 StandardMaterial</a></h3>
