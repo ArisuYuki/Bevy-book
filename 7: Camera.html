@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>第 4 章：时间与定时器 - Bevy游戏引擎指南</title>
+        <title>第 7 章：成像原理与相机 - Bevy游戏引擎指南</title>
 
 
         <!-- Custom HTML head -->
@@ -175,176 +175,18 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
-<h2 id="41-timer"><a class="header" href="#41-timer">4.1 Timer</a></h2>
-<p>一个<code>Timer</code>是一个bevy_time子crate中的类型，代表了bevy中的定时器，通过该类型，我们可以实现计时功能，其主要的两个构造方式如下：</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub fn new (duration: Duration , mode: TimerMode ) -&gt; Self
-pub fn from_seconds (duration: f32 , mode: TimerMode ) -&gt; Self
-
-//其中TimerMode的定义如下
-pub enum TimerMode {
-    Once,
-    Repeating,
-}
-<span class="boring">}</span></code></pre>
-<p><code>Timer</code>并不关心时间的起点，而更关心时间差，其<code>TimerMode</code>指定了<code>Timer</code>的模式，这个模式的含义如下：</p>
-<ul>
-<li>Once：在经过<code>Duration</code>时间后，计时器将停止跟踪并保持在完成状态，直到重置为止。</li>
-<li>Repeating：在经过<code>Duration</code>时间后，计时器不会保持状态，而是可以继续计时，再经过<code>Duration</code>时间后还会触发，并且仍然可以在任何给定点重置。</li>
-</ul>
-<p><code>Timer</code>的用法非常简单，读者可以查看<a href="https://docs.rs/bevy_time/0.17.3/bevy_time/struct.Timer.html#method.from_seconds">文档</a>，这里只介绍以下几个方法。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//将计时器的时间往前拨动
-//如果拨动的时间大于Timer内的Duration，Once类型的计时器会卡最大的Duration，Repeating类型的计时器不会被影响
-pub fn tick (&amp;mut self, delta: Duration ) -&gt; &amp;Self
-
-//计时器从创建，到上一次tick为止，是否已经到达持续时间
-pub fn is_finished (&amp;self) -&gt; bool
-
-//仅在上次调用tick方法后，计时器到达Duration的情况下，才返回true
-pub fn just_finished (&amp;self) -&gt; bool
-<span class="boring">}</span></code></pre>
-<p><code>is_finished</code>与<code>just_finished</code>的区别可能有些微妙，这可以通过以下代码来演示。一般而言我们会在<code>Repeating</code>模式下使用<code>just_finished</code>，在<code>Once</code>模式下使用<code>is_finished</code>。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//Repeating模式下使用just_finished
-let mut timer = Timer::from_seconds(1.0, TimerMode::Repeating);
-//我们在这里拨动了1.1s的时间，大于1.0秒，因此在这个tick里满足了条件
-timer.tick(Duration::from_secs_f32(1.1));
-assert_eq!(timer.just_finished(), true);
-//我们又在一个新的tick里拨动了0.5s，现在一共是1.6s，还没达到第二个时间点(2s)
-//所以下面会返回false
-timer.tick(Duration::from_secs_f32(0.5));
-assert_eq!(timer.just_finished(), false);
-
-//Once模式下使用is_finished
-//在第一次就已经拨到了1.1s,大于1.0s，因此该始时钟停留在1.0s
-//所以is_finished的返回值一直都是true
-let mut timer = Timer::from_seconds(1.0, TimerMode::Once);
-timer.tick(Duration::from_secs_f32(1.1));
-assert_eq!(timer.is_finished(), true);
-timer.tick(Duration::from_secs_f32(0.5));
-assert_eq!(timer.is_finished(), true);
-<span class="boring">}</span></code></pre>
-<h2 id="42--time"><a class="header" href="#42--time">4.2  Time</a></h2>
-<p>Bevy中内置了一些时间信息，其定义如下，这些<code>Time</code><strong>以全局资源的形式存在</strong>，通过这些我们可以获得Bevy的时间信息，从而指定时间相关的任务，例如定时运行某些系统等。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub struct Time&lt;T: Default = ()&gt; {
-    context: T,
-    wrap_period: Duration,
-    delta: Duration,
-    delta_secs: f32,
-    delta_secs_f64: f64,
-    elapsed: Duration,
-    elapsed_secs: f32,
-    elapsed_secs_f64: f64,
-    elapsed_wrapped: Duration,
-    elapsed_secs_wrapped: f32,
-    elapsed_secs_wrapped_f64: f64,
-}
-<span class="boring">}</span></code></pre>
-<p>Bevy中存在四种<code>Time</code>，这些时钟是我们在调用<code>DefaultPlugins</code>时内部的 <a href="https://docs.rs/bevy_time/0.17.3/bevy_time/struct.TimePlugin.html"><code>TimePlugin</code></a>为我们插入的，并且还为我们创建好了更新这些信息的，他们分别是：</p>
-<ul>
-<li>Time<real>：记录实际经过的时间</real></li>
-<li>Time<virtual>：记录虚拟游戏时间，该时间可以暂停或调整</virtual></li>
-<li>Time<fixed>：根据虚拟时间跟踪固定时间步长</fixed></li>
-<li>Time：一个通用时钟，对应于系统的“当前”或“默认”时间</li>
-</ul>
-<p>​	Bevy是如何做到这些的？简而言之，<code>TimePlugin</code>插件在<code>First</code>调度中（还记得<code>First</code>吗？那是游戏循环的第一个阶段）更新了<code>Time&lt;Real&gt;</code>（使用渲染app传递的时间或者直接调用<code>Instant::now()</code>），然后使用了这个时间来更新了<code>Time</code>和<code>Time&lt;Virtual&gt;</code>。</p>
-<p>bevy_time的源码里是这么写的，利用<code>Time&lt;Real&gt;</code>两次更新的时间差来更新<code>Time&lt;Virtual&gt;</code>，然后直接拷贝了一份给<code>Time</code>。这说明其实<code>Time</code>和<code>Time&lt;Virtual&gt;</code>里的时间其实是一样的（除非在<code>FixedMain</code>调度里）。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub fn update_virtual_time(current: &amp;mut Time, virt: &amp;mut Time&lt;Virtual&gt;, real: &amp;Time&lt;Real&gt;) {
-    let raw_delta = real.delta();
-    virt.advance_with_raw_delta(raw_delta);
-    *current = virt.as_generic();
-}
-<span class="boring">}</span></code></pre>
-<p>在<code>FixedMain</code>调度里，Bevy会更改Time，这是通过调用下面这个特殊的系统来实现的。这个系统利用<code>Time&lt;Virtual&gt;</code>更新了<code>Time&lt;Fixed&gt;</code>，然后在<code>FixedMain</code>阶段里直接修改了<code>Time</code>的时间与<code>Time&lt;Fixed&gt;</code>相同，来让我们在运行<code>FixedMain</code>中的系统时，调用<code>Time</code>看到的时间是<code>Time&lt;Fixed&gt;</code>。最后，当离开这个调度后，我们又将其更正为<code>Time&lt;Virtual&gt;</code>，一切就这样恢复原样，剩下的系统看到的<code>Time</code>不会发生任何改变。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub fn run_fixed_main_schedule(world: &amp;mut World) {
-    let delta = world.resource::&lt;Time&lt;Virtual&gt;&gt;().delta();
-    world.resource_mut::&lt;Time&lt;Fixed&gt;&gt;().accumulate(delta);
-
-    // Run the schedule until we run out of accumulated time
-    let _ = world.try_schedule_scope(FixedMain, |world, schedule| {
-        while world.resource_mut::&lt;Time&lt;Fixed&gt;&gt;().expend() {
-            *world.resource_mut::&lt;Time&gt;() = world.resource::&lt;Time&lt;Fixed&gt;&gt;().as_generic();
-            schedule.run(world);
-        }
-    });
-
-    *world.resource_mut::&lt;Time&gt;() = world.resource::&lt;Time&lt;Virtual&gt;&gt;().as_generic();
-}
-<span class="boring">}</span></code></pre>
-<p>说了这么多，其实只告诉了我们下面三件事：</p>
-<p><strong>在<code>RunFixedMainLoop</code>阶段执行的系统，我们看到的<code>Time</code>是<code>Time&lt;Fixed&gt;</code>。</strong></p>
-<p><strong>在<code>Update</code>阶段执行的系统，我们看到的<code>Time</code>是<code>Time&lt;Virtual&gt;</code>。</strong></p>
-<p><strong>如果需要获得现实世界的时间，我们则需要使用<code>Time&lt;Real&gt;</code>。</strong></p>
-<h2 id="43-time与timer的配合使用"><a class="header" href="#43-time与timer的配合使用">4.3 Time与Timer的配合使用</a></h2>
-<h3 id="431-定时执行系统"><a class="header" href="#431-定时执行系统">4.3.1 定时执行系统</a></h3>
-<p>很多时候，我们想要创建一个定时任务，利用Timer和Time，我们可以轻轻松松完成这件事，例如下面这样。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//返回一个闭包，这个闭包会在每次游戏循环里被执行，当返回true时系统将会执行
-pub fn on_real_timer(duration: Duration) -&gt; impl FnMut(Res&lt;Time&lt;Real&gt;&gt;) -&gt; bool + Clone {
-  	//创建一个定时器
-    let mut timer = Timer::new(duration, TimerMode::Repeating);
-  	//闭包获取Time&lt;Real&gt;，并拨动始终，判断是否经过了一段时间
-    move |time: Res&lt;Time&lt;Real&gt;&gt;| {
-        timer.tick(time.delta());
-        timer.just_finished()
-    }
-}
-
-//利用run_if，可以使用这个方法
-app.add_system(Update,some_system.run_if(on_real_timer(Durarion::from_sec_32(1.0))))
-<span class="boring">}</span></code></pre>
-<p>我们不需要重复编写这些功能，Bevy在bevy_time中已经为我们提供了一套常用的conditions，读者可以查看<a href="https://docs.rs/bevy_time/0.17.3/bevy_time/common_conditions/index.html">文档</a>。</p>
-<h3 id="432-定时执行系统进阶"><a class="header" href="#432-定时执行系统进阶">4.3.2 定时执行系统（进阶）</a></h3>
-<p>上面的方式只适用于简单的情况，更多时候我们还需要进行一定的控制，这时我们也可以使用上面的方式，但是我们这时候需要利用一个<code>Component</code>来存储<code>Timer</code>并手动利用<code>tick</code>更新时间，就像下面这样。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
-
-fn animate_sprite(
-    time: Res&lt;Time&gt;,
-    mut query: Query&lt;&amp;mut AnimationTimer&gt;,
-) {
-    for mut timer in &amp;mut query {
-        timer.tick(time.delta());
-        if timer.just_finished(){
-          //执行一些操作
-        }
-    }
-}
-<span class="boring">}</span></code></pre>
-<h3 id="433-时间相关的变量"><a class="header" href="#433-时间相关的变量">4.3.3 时间相关的变量</a></h3>
-<p>Bevy的示例中充满了这种用法，我们可以获得<code>Time</code>，然后利用<code>Time</code>来更新某些变量。例如我们可以通过<code>delta_secs</code>方法获得每帧相隔的时间，然后乘以系数并不断累加到某个位置，这可以做到让该变量随着时间不断更新的效果。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn animate(mut state: ResMut&lt;AnimationState&gt;, time: Res&lt;Time&gt;) {
-    if state.current &gt;= state.max || state.current &lt;= state.min {
-        state.speed = -state.speed;
-    };
-    state.current += state.speed * time.delta_secs();
-}
-<span class="boring">}</span></code></pre>
+<h2 id="71-针孔相机模型"><a class="header" href="#71-针孔相机模型">7.1 针孔相机模型</a></h2>
+<p>// TODO</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="3: Assets.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="6: Transform.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="5: 2D.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="8: 3D.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -354,11 +196,11 @@ fn animate_sprite(
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="3: Assets.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="6: Transform.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="5: 2D.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="8: 3D.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

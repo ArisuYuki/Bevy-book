@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2811c7ac.js";
+            window.path_to_searchindex_js = "searchindex-f53c9da3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bff3285f.js"></script>
+        <script src="toc-a10d5cb8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -427,7 +427,7 @@
 <p>那么？我们怎么知道实体在世界坐标系中的坐标呢？bevy为我们提供了一个<code>GlobalTransform</code>组件，当你在实体上插入<code>Transfrom</code>时，这个组件也会被同时插入。不过一般而言，你不能直接修改实体的<code>GlobalTransform</code>，这是由bevy维护的一个内部的坐标状态，通过更改组件的<code>Transfrom</code>，bevy会自动更新<code>GlobalTransform</code>。</p>
 <p>终于说完了这些枯燥的理论知识。还是让我们来看看我们的代码到底应该是怎么工作的吧！这里我们以bevy的最复杂的<code>Transfrom</code><a href="https://github.com/bevyengine/bevy/blob/main/examples/transforms/align.rs">例子</a>为例来讲解，至于其他的平移和缩放，相信聪明的你能从其他简单的bevy官方仓库的例子里一下子就看懂。</p>
 <p>这个比较复杂的例子的名字叫做align，运行<code>cargo run --example align</code>，可以发现例子做了一件很简单的事情：当我们按下R随机生成一个旋转轴，按下T时将飞船对齐到旋转轴。</p>
-<p><img src="./image/chapter5.5/1.png" alt="1"></p>
+<p><img src="./image/chapter6/1.png" alt="1"></p>
 <p>让我们来看看代码都写了些什么？首先，例子里定义了这些组件，这些组件都非常的简单，只有一些需要额外的特殊说明。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -624,7 +624,7 @@ if keyboard.just_pressed(KeyCode::KeyT) {
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="7: 3D.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="7: Camera.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -638,7 +638,7 @@ if keyboard.just_pressed(KeyCode::KeyT) {
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="7: 3D.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="7: Camera.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

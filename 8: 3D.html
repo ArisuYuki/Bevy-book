@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>第 7 章：3D 渲染 - Bevy游戏引擎指南</title>
+        <title>第 8 章：3D 基础 - Bevy游戏引擎指南</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2811c7ac.js";
+            window.path_to_searchindex_js = "searchindex-f53c9da3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bff3285f.js"></script>
+        <script src="toc-a10d5cb8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -175,9 +175,10 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
-<h2 id="71-light"><a class="header" href="#71-light">7.1 Light</a></h2>
+<p><em>本章节的主要内容在于对3D世界有一个一般的了解，由于3D部分过于复杂，大量的细节都将在后续章节中进行更为详细的讲解。</em></p>
+<h2 id="81-light"><a class="header" href="#81-light">8.1 Light</a></h2>
 <p>“上帝说：要有光，就有了光。”我们的三维世界也需要有光，否则渲染出来的屏幕将会漆黑一片。有关灯光的介绍是一个大主题，甚至能够写好几本书，在这里我们只会简要的介绍一下几种常见的灯光，以便我们能够首先看到点什么，剩下的内容将会在下一章内更仔细的介绍。</p>
-<h3 id="711-pointlight"><a class="header" href="#711-pointlight">7.1.1 PointLight</a></h3>
+<h3 id="811-pointlight"><a class="header" href="#811-pointlight">8.1.1 PointLight</a></h3>
 <p><code>PointLight</code>是一种从中心点开始向各个方向发光的光源，其结构体定义如下。我们现在主要关心的是color、intensity、range、radius这几个参数。他们分别设定了光源的颜色、强度、范围、光点半径。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -194,7 +195,7 @@
     pub shadow_map_near_z: f32,
 }
 <span class="boring">}</span></code></pre>
-<h3 id="712-spotlight"><a class="header" href="#712-spotlight">7.1.2 SpotLight</a></h3>
+<h3 id="812-spotlight"><a class="header" href="#812-spotlight">8.1.2 SpotLight</a></h3>
 <p><code>SpotLight</code>是一种从某个点朝着某个方向发射的光源，一般也叫聚光灯，形状是一个从源点沿着方向为轴线的锥形，其结构体定义如下。除了color、intensity、range、radius等参数，我们还需要关心inner_angle和outer_angle这两个参数，</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -214,7 +215,7 @@
 }
 <span class="boring">}</span></code></pre>
 <p>这两个参数是两个角度，范围应该在0～90度之间，且inner_angle应当小于outer_angle，这两个参数看起来就像下面这样。outer_angle指定了聚光灯的范围，而位于inner_angle和outer_angle之间的光强度将会逐渐减小来呈现一种边缘的光更弱的效果。</p>
-<p><img src="./image/chapter6/1.png" alt="1"></p>
+<p><img src="./image/chapter8/1.png" alt=""></p>
 <p>要使用<code>SpotLight</code>光指定<code>SpotLight</code>是不够的，我们还必须指定他的Position和Direction才行，但是定义中并没有提供我们相关的设置，我们要怎么办呢？当然，使用<code>Transform</code>即可。因此想要使用聚光灯，就要像下面这样，利用<code>Transform</code>组件来指定原点和方向。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -230,7 +231,7 @@
     Transform::from_xyz(-1.0, 2.0, 0.0).looking_at(Vec3::new(-1.0, 0.0, 0.0), Vec3::Z),
 ));
 <span class="boring">}</span></code></pre>
-<h3 id="713-directionallight"><a class="header" href="#713-directionallight">7.1.3 DirectionalLight</a></h3>
+<h3 id="813-directionallight"><a class="header" href="#813-directionallight">8.1.3 DirectionalLight</a></h3>
 <p><code>DirectionalLight</code>意为平行光，是一种理想的现实里不存在的光源，我们的太阳光也可以视为这种光源。这种光源的光线不像<code>SpotLight</code>或者<code>PointLight</code>那样由一个点发出，而是由一个平面发出，就好像由一组光源列阵一样。</p>
 <p>​	illuminance参数指定了照明的强度，但是这个单位与intensity不同。intensity以lumens（流明）为单位，而illuminance以lux（每平方米的流明）为单位。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -245,13 +246,12 @@
     pub shadow_normal_bias: f32,
 }
 <span class="boring">}</span></code></pre>
-<h2 id="72-mesh3d"><a class="header" href="#72-mesh3d">7.2 Mesh3d</a></h2>
+<h2 id="82-mesh3d"><a class="header" href="#82-mesh3d">8.2 Mesh3d</a></h2>
 <p>同<code>Mesh2d</code>一样，<code>Mesh3d</code>是我们用来表示一个三维网格模型的组件，其用法与<code>Mesh2d</code>也相同：传入一个<code>Mesh</code>的<code>Handler</code>。因此我们可以像下面的代码一样，创建一些内置的<code>Mesh</code>并添加到<code>Mesh</code>资产中，然后使用<code>Mesh3d</code>和<code>MeshMaterial3d</code>来显示这些物体。</p>
 <p>同时，别忘了指定灯光和相机，否则我们的屏幕上将会一片漆黑。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>
-fn setup(
+</span>fn setup(
     mut commands: Commands,
     mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
     mut images: ResMut&lt;Assets&lt;Image&gt;&gt;,
@@ -315,11 +315,11 @@ fn setup(
 }
 
 <span class="boring">}</span></code></pre>
-<h3 id="721-加载glbgltf"><a class="header" href="#721-加载glbgltf">7.2.1 加载glb/gltf</a></h3>
+<h3 id="821-加载glbgltf"><a class="header" href="#821-加载glbgltf">8.2.1 加载glb/glTF</a></h3>
 <p>既然这一章讲得是3D，那么我们必须先好好讲明白如何把我们在blender中建模好的模型加载进bevy里并显示。bevy中的模型加载非常简单，但是也有些许的独特。</p>
-<p>在bevy中， glb和gltf文件是一等公民，虽然bevy也支持加载obj或者其他格式的模型，但是bevy对于glb和gltf的支持是最好的。这其中涉及到很多复杂的原因，但是，如果你的模型不是glb格式的，你可以现在blender里将其重新导出为glb模型，或者你也可以使用bevy_obj等crate直接加载obj模型。</p>
+<p>在bevy中， glb和glTF文件是一等公民，虽然bevy也支持加载obj或者其他格式的模型，但是bevy对于glb和glTF的支持是最好的。这其中涉及到很多复杂的原因，但是，如果你的模型不是glb格式的，你可以现在blender里将其重新导出为glb模型，或者你也可以使用bevy_obj等crate直接加载obj模型。</p>
 <p>简单来说，<strong>GLB 是 GLTF 的二进制（Binary）版本</strong>，他们都通过bevy_gltf这个crate来进行加载。</p>
-<p>glTF通常是一个 <code>.gltf</code> 文件（一般是JSON 格式），旁边带着一堆些<code>.bin</code> 文件（存储顶点、几何数据的二进制包）和一堆 <code>.png/.jpg</code> 图片（贴图）。</p>
+<p>glTF通常是一个 <code>.gltf</code> 文件（一般是JSON 格式），旁边带着一堆些<code>.bin</code> 文件（存储顶点、几何数据的二进制包）和一堆 <code>.png/.jpg</code> 图片。其存储方式是按照类别来分类存储的（如下方表格所示）。</p>
 <p>glb只有一个单独的 <code>.glb</code> 文件。它把 JSON 说明书、二进制数据、贴图全部塞进了一个大包里，因为是全二进制存储，且省去了 Base64 编码的开销，通常比散装的 glTF 更小，而且加载更快，因此更推荐使用glb格式。</p>
 <p>模型一般约定放在asset/models文件夹下。因此，我们可以这样来加载模型。那么，下面的<code>SceneRoot</code>和<code>GltfAssetLabel</code>又是什么呢？简单来说，<code>SceneRoot</code>只是一个特殊的组件，代表了我们在使用 blender建模时的场景根，<code>GltfAssetLabel</code>则代表了各种可能的glb规范里的类型。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -328,7 +328,6 @@ fn setup(
     let gltf_scene: Handle&lt;Scene&gt; = asset_server.load(GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"));
     //或者，我们可以使用这种带后戳的格式化字符串
 	//let gltf_scene: Handle&lt;Scene&gt; = asset_server.load(format!("models/FlightHelmet/FlightHelmet.gltf#{}", GltfAssetLabel::Scene(0)));
-    
     commands.spawn(( 
         SceneRoot(gltf_scene),
         Transform::from_xyz(2.0, 0.0, -5.0),
@@ -361,14 +360,14 @@ fn setup(
     InverseBindMatrices(usize),
 }
 <span class="boring">}</span></code></pre>
-<p>在这里，我们给出每一种类型在glb规范中对应的部分，当我们加载后，我们便可以更改这些配置，来达到在游戏中变化的效果。</p>
+<p>在这里，我们给出每一种类型在glTF规范中对应的部分，可以看到这个枚举里的每一个字段，都对应了glTF其中的一个标准。当我们加载后，我们便可以更改这些配置，来达到在游戏中变化的效果。</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th style="text-align: center">名称</th><th style="text-align: center">对应</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: center">Scene</td><td style="text-align: center">GLTF 里的场景 ，一个 GLB 可以包含多个场景（例如一个文件里存了“白天”和“黑夜”两个版本的布局）。通常我们用 <code>Scene(0)</code>，它会包含模型的所有层级、灯光和初始位置还有所有的模型</td></tr>
+<tr><td style="text-align: center">Scene</td><td style="text-align: center">GLTF 里的场景 ，一个 GLTF 可以包含多个场景（例如一个文件里存了“白天”和“黑夜”两个版本的布局）。通常我们用 <code>Scene(0)</code>，它会包含模型的所有层级、灯光和初始位置还有所有的模型</td></tr>
 <tr><td style="text-align: center">Node</td><td style="text-align: center">场景树的骨架。每个节点都有自己的 <code>Transform</code>（平移、旋转、缩放）。你可以通过索引单独加载某个节点</td></tr>
 <tr><td style="text-align: center">Mesh</td><td style="text-align: center">对应网格，GLTF 里的 Mesh 并不直接包含顶点，它是一个容器</td></tr>
 <tr><td style="text-align: center">Primitive</td><td style="text-align: center">一个 Mesh 可以由多个 Primitive 组成（例如一个角色的 Mesh，手是一个 Primitive，身体是另一个，因为它们可能使用不同的材质）</td></tr>
@@ -382,54 +381,80 @@ fn setup(
 </tbody>
 </table>
 </div>
-<h3 id="722-使用glbgltf"><a class="header" href="#722-使用glbgltf">7.2.2 使用glb/gltf</a></h3>
-<p>在上面一节里，我们已经介绍了如何加载glb文件，并理解了加载后glb文件的构成，现在，我们需要来看看如何在ecs系统中使用这些加载好的glb文件。</p>
-<p>先给出一个例子，这个系统会查询一个有<code>MovedScene</code>组件的glb实体，然后对他的每一个子实体都进行修改。这个例子里有着很多有趣的细节。</p>
-<p>首先，这个例子告诉我们，如果我们的glb中没有把模型合并，那么我们加载的模型并不是一个单一的实体。通过使用<code>Children</code>的方式可以发现，<strong>Scene是一簇有着父子关系的实体</strong>，整个场景通过<code>children</code>和<code>ChildOf</code>来组织(详情见第2章)。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>//在setup中
-//commands.spawn((
-    //Transform::from_xyz(-1.0, 0.0, 0.0),
-    //SceneRoot(
-       //asset_server
-       //.load(GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf")),
-       //),
-//));
-
-fn move_scene_entities(
-    time: Res&lt;Time&gt;,
-    moved_scene: Query&lt;Entity, With&lt;MovedScene&gt;&gt;,
-    children: Query&lt;&amp;Children&gt;,
-    mut transforms: Query&lt;&amp;mut Transform&gt;,
-) {
-    for moved_scene_entity in &amp;moved_scene {
-        let mut offset = 0.;
-        //使用iter_descendants方法，递归遍历该实体的所有子实体
-        for entity in children.iter_descendants(moved_scene_entity) {
-            //获得每个子实体的transform，然后更改
-            if let Ok(mut transform) = transforms.get_mut(entity) {
-                transform.translation = Vec3::new(
-                    offset * ops::sin(time.elapsed_secs()) / 20.,
-                    0.,
-                    ops::cos(time.elapsed_secs()) / 20.,
-                );
-                offset += 0.5;
-            }
-        }
-    }
+<p>为什么上面的枚举中的数据全都是<code>usize</code>类型？这是因为<strong>glTF 在底层确实几乎全部使用数组下标来引用资源</strong>，因此这也说明如果不把glTF放到blender里看看到底那个索引对应的是什么，那加载的时候就只能祈求上帝知道这是什么了。</p>
+<p>在上面加载的时候，我们使用的是<code>GltfAssetLabel::Scene(0)</code>这意味着整个场景都被加载进来了。有趣的是，你也可以只使用<code>GltfAssetLabel::Mesh(n)</code>来加载一个 <code>Mesh</code>。但是这个<code>Mesh</code>指向的是 glTF 文件内部那个 Meshes 数组中的第 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> 个元素。因此他到底是什么，除了在glTF中看一看，谁也不得而知。</p>
+<h3 id="822-gltf元数据"><a class="header" href="#822-gltf元数据">8.2.2 glTF元数据</a></h3>
+<p>如果只有下标，那么谁也不知道我们加载出来的一个<code>Scene</code>下面的每个<code>Mesh</code>到底是什么了。因此必然存在一些元数据(描述数据的数据)来描述这些<code>Mesh</code>。这些元数据一般分为两类，一类是glTF自带元数据，一类是建模师在建模时插入的元数据。</p>
+<p>对于前者，我们经常会用到的是<code>GltfMeshName</code>和<code>GltfMaterialName</code>。在Blender里这些就是<code>Data</code> 属性面板里的名字和 <code>Material</code>属性面板里的名字。顾名思义，这两个元数据组件会被 Bevy自动插入到读取的<code>Mesh3d</code>和<code>MeshMaterial3d&lt;StandardMaterial&gt;</code>对应的组件上，不需要你手动操作。</p>
+<p><img src="./image/chapter8/2.png" alt=""></p>
+<p>例如，一个Cube的glTF描述可能如下：</p>
+<pre><code class="language-json">{
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.18",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Cube",
+			"scale":[
+				0.33985769748687744,
+				0.33985769748687744,
+				0.33985769748687744
+			]
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Material",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.800000011920929,
+					0.800000011920929,
+					0.800000011920929,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Cube_geometry",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1,
+						"TEXCOORD_0":2
+					},
+					"indices":3,
+					"material":0
+				}
+			]
+		}
+	],
+	//...
 }
-<span class="boring">}</span></code></pre>
-<p>运行这些代码，可以发现他们的效果如下所示。因为每个子实体都有自己独立的<code>transform</code>，所以最终的效果会让模型的每个部分错位平移。这正是我们在第六章里多次提到的！<strong>子实体的transform是相对于父实体的。</strong></p>
-<p><img src="./image/chapter7/1.png" alt="image-20260106114325464"></p>
-<p>现在我们知道了，Scene是一簇有着父子关系的实体，那么如果我们需要访问其中的某一个或者某一些子实体的时候该怎么做？这可以通过下面这个例子来解释，我们利用了一个名为<code>GltfMaterialName</code>的组件来锁定正确的子实体。</p>
+</code></pre>
+<p>利用<code>Qurey</code>系统和自动插入的<code>GltfMaterialName</code>，你可以直接这样来查询。并且根据名字来判断到底是不是你需要的那个<code>Mesh3d</code>。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>//在setup中
 //commands.spawn(SceneRoot(asset_server.load(
 //    GltfAssetLabel::Scene(0).from_asset("models/GltfPrimitives/gltf_primitives.glb"),
 //)));
-
 
 fn find_top_material_and_mesh(
     mut materials: ResMut&lt;Assets&lt;StandardMaterial&gt;&gt;,
@@ -469,19 +494,123 @@ fn find_top_material_and_mesh(
     }
 }
 <span class="boring">}</span></code></pre>
-<p>关于名称，其实glft规范中有两个，他们在bevy中是：<code>GltfMeshName</code>与<code>GltfMaterialName</code>。我们从每个glb文件加载出的实体，这两个属性都会被自动的插入到实体上，他们的具体的内容则是我们在blender中指定的网格名称和材质名称。他们的定义很简单，如下所示，只是一个包含字符串的结构体。</p>
+<p>对于后者，他们都是可选的。当你使用 <code>SceneRoot</code> 加载场景时，Bevy 会自动将以下 <code>extras</code> 挂载到生成的 <strong>Entity</strong> 上。这些extras基本是是一些用户自定义的元数据或者简单的名称等</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>**对应的组件 **</th><th><strong>说明</strong></th></tr>
+</thead>
+<tbody>
+<tr><td><code>GltfExtras</code></td><td>整个Glft的自定义属性</td></tr>
+<tr><td><code>GltfSceneExtras</code></td><td>场景级别的自定义数据</td></tr>
+<tr><td><code>GltfMeshExtras</code></td><td>网格自定义的属性</td></tr>
+<tr><td><code>GltfMaterialExtras</code></td><td>材质的自定义属性</td></tr>
+</tbody>
+</table>
+</div>
+<p>在blender里，你可以这样去插入这些<code>extras</code>，比如材质的自定义属性如下。</p>
+<p><img src="./image/chapter8/3.png" alt=""></p>
+<p>在使用这自定义属性的时候，要特别注意应当用Option来进行Query，因为这些数据很有可能并不存在。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>pub struct GltfMeshName(pub String);
-pub struct GltfMaterialName(pub String);
+</span>fn check_for_gltf_extras(
+    gltf_extras_per_entity: Query&lt;(
+        Entity,
+        Option&lt;&amp;Name&gt;,
+        Option&lt;&amp;GltfSceneExtras&gt;,
+        Option&lt;&amp;GltfExtras&gt;,
+        Option&lt;&amp;GltfMeshExtras&gt;,
+        Option&lt;&amp;GltfMaterialExtras&gt;,
+    )&gt;,
+    mut display: Single&lt;&amp;mut Text, With&lt;ExampleDisplay&gt;&gt;,
+) {
+    let mut gltf_extra_infos_lines: Vec&lt;String&gt; = vec![];
+
+    for (id, name, scene_extras, extras, mesh_extras, material_extras) in
+        gltf_extras_per_entity.iter()
+    {
+        if scene_extras.is_some()
+            || extras.is_some()
+            || mesh_extras.is_some()
+            || material_extras.is_some()
+        {
+            let formatted_extras = format!(
+                "Extras per entity {} ('Name: {}'):
+    - scene extras:     {:?}
+    - primitive extras: {:?}
+    - mesh extras:      {:?}
+    - material extras:  {:?}
+                ",
+                id,
+                name.unwrap_or(&amp;Name::default()),
+                scene_extras,
+                extras,
+                mesh_extras,
+                material_extras
+            );
+            gltf_extra_infos_lines.push(formatted_extras);
+        }
+        display.0 = gltf_extra_infos_lines.join("\n");
+    }
+}
 <span class="boring">}</span></code></pre>
-<p>除了上面介绍的那些，还有一种名为<code>Extras</code>的数据，他们只是一些附加的文字描述，例如<a href="https://docs.rs/bevy_gltf/latest/bevy_gltf/struct.GltfExtras.html">GltfExtras</a>、<a href="https://docs.rs/bevy_gltf/latest/bevy_gltf/struct.GltfMaterialExtras.html">GltfMaterialExtras</a>、<a href="https://docs.rs/bevy_gltf/latest/bevy_gltf/struct.GltfMeshExtras.html">GltfMeshExtras</a>等等，读者可以自行查看文档，这里不再赘述。</p>
+<h3 id="823-遍历glbgltf"><a class="header" href="#823-遍历glbgltf">8.2.3 遍历glb/gltf</a></h3>
+<p>在上面一节里，我们已经介绍了如何加载glb文件，并理解了加载后glb文件的构成，现在，我们需要来看看如何在ecs系统中使用这些加载好的glb文件。</p>
+<p>先给出一个例子，这个系统会查询一个有<code>MovedScene</code>组件的glb实体，然后对他的每一个子实体都进行修改。这个例子里有着很多有趣的细节。</p>
+<p>首先，这个例子告诉我们，如果我们的glb中没有把模型合并，那么我们加载的模型并不是一个单一的实体。通过使用<code>Children</code>的方式可以发现，<strong>Scene是一簇有着父子关系的实体</strong>，整个场景通过<code>children</code>和<code>ChildOf</code>来组织(详情见第2章)。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//在setup中
+//commands.spawn((
+//    Transform::from_xyz(-1.0, 0.0, 0.0),
+//    SceneRoot(
+//       asset_server
+//        .load
+//        (GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf")),
+//    ),
+//));
+//commands.spawn((
+//    Transform::from_xyz(-1.0, 0.0, 0.0),
+//    SceneRoot(
+//        asset_server
+//        .load
+//        (GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf")),
+//    ),
+//    MovedScene,
+//));
+
+fn move_scene_entities(
+    time: Res&lt;Time&gt;,
+    moved_scene: Query&lt;Entity, With&lt;MovedScene&gt;&gt;,
+    children: Query&lt;&amp;Children&gt;,
+    mut transforms: Query&lt;&amp;mut Transform&gt;,
+) {
+    for moved_scene_entity in &amp;moved_scene {
+        let mut offset = 0.;
+        //使用iter_descendants方法，递归遍历该实体的所有子实体
+        for entity in children.iter_descendants(moved_scene_entity) {
+            //获得每个子实体的transform，然后更改
+            if let Ok(mut transform) = transforms.get_mut(entity) {
+                transform.translation = Vec3::new(
+                    offset * ops::sin(time.elapsed_secs()) / 20.,
+                    0.,
+                    ops::cos(time.elapsed_secs()) / 20.,
+                );
+                offset += 0.5;
+            }
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>运行这些代码，可以发现他们的效果如下所示。因为每个子实体都有自己独立的<code>transform</code>，所以最终的效果会让模型的每个部分错位平移。这正是我们在第六章里多次提到的！<strong>子实体的transform是相对于父实体的。</strong></p>
+<p><img src="./image/chapter8/4.png" alt="image-20260106114325464"></p>
 <hr>
 <p>现在，让我们再重新回顾一下本小节。本小节的内容相当重要，当我们从glb文件中加载一个Scene的时候，我们获得的是一簇实体，而不是一个单一的实体，因此我们只使用了<code>SceneRoot</code>组件来挂载根，像这样加载glb模型。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span> let flight_helmet = asset_server
-        .load(GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"));
+        .load(
+            GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"));
 
 commands.spacwn((
     SceneRoot(flight_helmet.clone()),
@@ -489,224 +618,9 @@ commands.spacwn((
 ));
 <span class="boring">}</span></code></pre>
 <p>从glb文件内加载的模型上，带有很多的组件，这些组件包括：<code>MeshMaterial3d</code>、<code>GltfMeshName</code>、<code>GltfMaterialName</code>、各种<code>Extras</code>等等。其中<code>MeshMaterial3d</code>描述了实体的材质，后两者描述了实体的网格和材质的名字，<code>Extras</code>则是一些附加的文本信息。这其中，最重要的是<code>MeshMaterial3d</code>，在下一章中，我们将会使用<code>MeshMaterial3d</code>来动态的修改一个已经加载好的模型或者shape的材质。</p>
-<h3 id="723-mesh-animation"><a class="header" href="#723-mesh-animation">7.2.3 mesh animation</a></h3>
-<p>只有一坨什么也不能做的模型也太无聊了，现在，让我们来研究研究如何播放模型的动画。</p>
-<p>要播放动画，不管怎样，我们都要先拿到模型，<strong>Gltf模型其实是一种Asset</strong>，因此我们在第三章中讨论的如何加载资产的那一整套，都可以完美的平移过来。</p>
-<p>首先我们需要一个<code>Resource</code>来存储句柄，以便在不同的系统之间传递。当然也可以传递一些别的东西，不过目前而言我们主要关心的是其中的<code>Handle</code>。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>#[derive(Resource)]
-struct Fox(Handle&lt;Gltf&gt;);
-<span class="boring">}</span></code></pre>
-<p>然后，在<code>startup</code>阶段我们的<code>setup</code>系统中，只需要直接加载即可。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn setup(
-    mut commands: Commands,
-    asset_server: Res&lt;AssetServer&gt;,
-    mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
-    mut materials: ResMut&lt;Assets&lt;StandardMaterial&gt;&gt;,
-) {
-    commands.insert_resource(Fox(asset_server.load(FOX_PATH)));
-    //....
-}
-<span class="boring">}</span></code></pre>
-<p>在这里，我们将用上我们在第2章中介绍的条件运行(参见2.3.2 run_if)。我们希望在资源加载完成并且配置完成之前，不要运行我们的动画系统。（或者，我们也可以采用state的方法来切换系统的运行，你能想到怎么做吗？）</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// 存储动画相关的资源
-#[derive(Resource)]
-struct Animations {
-    // 至于AnimationNodeIndex和AnimationGraph是什么，等待下文我们揭晓
-    animations: Vec&lt;AnimationNodeIndex&gt;,
-    graph_handle: Handle&lt;AnimationGraph&gt;,
-}
-
-// 这个系统在资产加载完成之前将会一直尝试运行
-app.add_systems(
-    Update,
-    spawn_fox_asset_when_ready.run_if(not(resource_exists::&lt;Animations&gt;)),
-)// 这个系统只有在加载完成后运行
-.add_systems(
-    Update,
-    keyboard_control.run_if(resource_exists::&lt;Animations&gt;),
-)
-<span class="boring">}</span></code></pre>
-<p>在<code>spawn_fox_asset_when_ready</code>系统中，我们依然采用我们的三板斧。使用<code>is_loaded_with_dependencies</code>来判断是否已经加载完成(详见3.1.1节，要时常复习才能温故知新！)</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn spawn_fox_asset_when_ready(
-    mut commands: Commands,
-    fox_handle: Res&lt;Fox&gt;,
-    asset_server: Res&lt;AssetServer&gt;,
-    gltfs: Res&lt;Assets&lt;Gltf&gt;&gt;,
-    mut graphs: ResMut&lt;Assets&lt;AnimationGraph&gt;&gt;,
-) {
-    // 如果尚未加载完成，那么先不执行
-    if !asset_server.is_loaded_with_dependencies(&amp;fox_handle.0) {
-        return;
-    }
-	// 然后后利用句柄来获得我们的资产，你还记得吗？
-    let fox = gltfs
-        .get(&amp;fox_handle.0)
-        .expect("a loaded asset should exist in the glTF assets collection");
-
-    // 很快你就会知道这里的三个动画对应了什么了
-    // 现在，只需要知道我们有了一个AnimationGraph类型的graph
-    // 还有了一个Vec&lt;NodeIndex&gt;类型的node_indices
-    let (graph, node_indices) = AnimationGraph::from_clips([
-        fox.named_animations["Run"].clone(),
-        fox.named_animations["Walk"].clone(),
-        fox.named_animations["Survey"].clone(),
-    ]);
-
-    // 保存这些动画信息，以便我们后续使用
-    let graph_handle = graphs.add(graph);
-    commands.insert_resource(Animations {
-        animations: node_indices,
-        graph_handle,
-    });
-
-    // 现在，我们才向bevy中添加真正的模型
-    commands
-        .spawn(SceneRoot(
-            fox.default_scene
-                .clone()
-                .expect("a default scene exists in this file"),
-        ))
-    	// 这里用到了observe，还记得observe有什么用吗？（详见2.7.1节，再次强调温故知新的重要性～）
-        .observe(setup_scene);
-}
-
-// 现在，每当SceneInstanceReady触发时，该函数将会被执行
-// 可是SceneInstanceReady是什么？他的完整路径是bevy::scene::SceneInstanceReady
-// 简而言之，这是bevy的一个内置事件，其定义如下，每当整个场景加载完成之后会被触发
-// pub struct SceneInstanceReady {
-//     pub entity: Entity,
-//     pub instance_id: InstanceId,
-// }
-// 而AnimationPlayer组件，是跟随scene自动添加的
-// 所以当SceneInstanceReady触发的时候，AnimationPlayer也已经存在
-fn setup_scene(
-    _ready: On&lt;SceneInstanceReady&gt;,
-    mut commands: Commands,
-    animations: Res&lt;Animations&gt;,
-    player: Single&lt;(Entity, &amp;mut AnimationPlayer)&gt;,
-) {
-    // 直接将内部的两个组件的所有权拿出来
-    let (entity, mut player) = player.into_inner();
-    // 然后我们需要new一个AnimationTransitions
-    // 如果你用过css，那么你一定也知道transition有什么用，这里的AnimationTransitions
-    // 也是一样的，当动画切换的时候，将会在动画之间插入平滑的过渡
-    let mut transitions = AnimationTransitions::new();
-	// 立刻开始重复播放第一个动画
-    transitions
-        .play(&amp;mut player, animations.animations[0], Duration::ZERO)
-        .repeat();
-	// 这里的commands.entity对应了我们在第2章介绍的EntityComands，还记得吗？
-    // 因此我们向scene根实体上，插入了这两个新的组件
-    commands
-        .entity(entity)
-        .insert(AnimationGraphHandle(animations.graph_handle.clone()))
-        .insert(transitions);
-}
-
-<span class="boring">}</span></code></pre>
-<p>这些代码看下来真是让人大汗淋漓。你可能心里会想，怎么那么多没见过的东西？<code>AnimationNodeIndex</code>是什么？<code>AnimationGraph</code>是什么？<code>AnimationTransitions</code>又是什么？<code>AnimationGraphHandle</code>又是什么？？</p>
-<p>让我们来一个个翻一翻源代码看看吧。<code>AnimationNodeIndex</code>其实只是一个别名，其本质上不过是一个含有u32类型的枚举罢了，这个数字标识了一个动画在gltf中的索引。这解释了为什么我们使用<code>transitions.play</code>方法时需要他。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// The index of either an animation or blend node in the animation graph.
-///
-/// These indices are the way that [animation players] identify each animation.
-///
-/// [animation players]: crate::AnimationPlayer
-pub type AnimationNodeIndex = NodeIndex&lt;u32&gt;;
-<span class="boring">}</span></code></pre>
-<p><code>AnimationGraph</code>是一个有向无环图，感兴趣的读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html">文档</a>，他其实相当复杂。描述了多个动画应该如何混合在一起。这是什么意思呢？我们在设计动画时，比如行走和攻击，一般都会设计成为两个单独的动画。如果不能将其混合起来一起播放，那么你行走的时候攻击时角色就会发生诡异的漂移（即脚不动但是角色还在跑，这在很多粗制滥造的游戏中很常见）。</p>
-<p>观察其代码，可以发现其由<code>graph</code>、<code>root</code>、<code>mask_groups</code>构成。<code>AnimationGraphNode</code>描述了如何对动画进行混合。<code>HashMap&lt;AnimationTargetId, u64&gt;</code>则描述了<strong>每块动画骨骼的uuid和掩码组</strong>之间的关系。掩码组是什么意思？</p>
-<p>为什么这里是一个<code>HashMap&lt;AnimationTargetId, u64&gt;</code>类型呢？其实这是一种典型的位图。u64类型含有64个bit位。因此每个骨骼，最多支持定义 <strong>64 个不同的掩码组</strong>。</p>
-<p>举个例子，一个复杂的模型可能有几百根骨骼，但你可能只想给其中的一部分（比如只有右手、或者只有上半身）分配掩码组。<code>HashMap</code> 只存储那些被分配了组的骨骼。你在 <code>mask_groups</code> 里把所有属于“上半身”的骨骼 ID 都标记为 <code>1 &lt;&lt; 0</code>（第 0 组）。<strong>节点 A</strong> 播放“奔跑”动画（不带掩码，作用于全身）。<strong>节点 B</strong> 播放“挥剑”或“换弹”动画，但你给这个节点设置一个掩码，指定它<strong>只作用于第 0 组</strong>。角色就可以一边跑（下半身由节点 A 控制），一边做攻击动作（上半身被节点 B 覆盖）。</p>
-<p>这方面的混合其实非常复杂，三言两语是搞不定的。如果对动画混合更感兴趣的读者，则需要查阅更详细的资料，这里就不再赘述。</p>
-<p>至于<code>AnimationGraphHandle</code>，这名字显而易见，由于<code>AnimationGraph</code>实际上是一种<code>asset</code>，因此当然也有对应的<code>handle</code>。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub struct AnimationGraph {
-    pub graph: Graph&lt;AnimationGraphNode, ()&gt;,
-    pub root: NodeIndex,
-    pub mask_groups: HashMap&lt;AnimationTargetId, u64&gt;,
-}
-
-pub struct AnimationTargetId(pub Uuid);
-<span class="boring">}</span></code></pre>
-<p><code>AnimationTransitions</code>是一个用于控制动画之间过度的“增强型”<code>AnimationPlayer</code>。前面我们说当场景生成时，<code>AnimationPlayer</code>会自动添加到场景的任何根动画中。要使用<code>AnimationTransitions</code>你还必须把<code>AnimationGraphHandle</code>也同时放在一个实体上。仔细一想这也是正常的。因为动画过渡，本身就是利用动画图来实现的。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// 第一次动画必须使用transitions.play而不能使用AnimationPlayer上的play方法
-// 因为AnimationTransitions需要记录动画的顺序，如果直接操作AnimationPlayer开始
-// 会导致AnimationTransitions 无法确定动画的切换关系，从而导致过渡效果通常不正确。
-let mut transitions = AnimationTransitions::new();
-transitions
-    .play(&amp;mut player, animations.animations[0], Duration::ZERO)
-    .repeat();
-// 并且我们把这两个组件都插入到了根上
-commands
-    .entity(entity)
-    .insert(AnimationGraphHandle(animations.graph_handle.clone()))
-    .insert(transitions);
-<span class="boring">}</span></code></pre>
-<p>最后，一切大功告成，只需要在按下不同的按键时切换不同动画即可。</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn keyboard_control(
-    keyboard_input: Res&lt;ButtonInput&lt;KeyCode&gt;&gt;,
-    mut animation_players: Query&lt;(&amp;mut AnimationPlayer, &amp;mut AnimationTransitions)&gt;,
-    animations: Res&lt;Animations&gt;,
-    mut current_animation: Local&lt;usize&gt;,
-) {
-    // 这里的player是一个AnimationPlayer
-    // 而transitions则是我们插入的AnimationTransitions
-    for (mut player, mut transitions) in &amp;mut animation_players {
-        // 我们可以获取下一个动画的NodeIndex
-        let Some((&amp;playing_animation_index, _)) = player.playing_animations().next() else {
-            continue;
-        };
-		// 当按下特定的按键时，可以控制播放器的行为，比如播放暂停
-        if keyboard_input.just_pressed(KeyCode::Space) {
-            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
-            if playing_animation.is_paused() {
-                playing_animation.resume();
-            } else {
-                playing_animation.pause();
-            }
-        }
-        // 还可以控制播放速度
-         if keyboard_input.just_pressed(KeyCode::ArrowUp) {
-            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
-            let speed = playing_animation.speed();
-            playing_animation.set_speed(speed * 1.2);
-        }
-        // 对于动画的切换，我们需要计算下一个索引，并重新使用transitions来切换
-        // 必须使用transitions.play()!否则过渡会出问题
-        if keyboard_input.just_pressed(KeyCode::Enter) {
-            *current_animation = (*current_animation + 1) % animations.animations.len();
-            transitions
-                .play(
-                    &amp;mut player,
-                    animations.animations[*current_animation],
-                    Duration::from_millis(250),
-                )
-                .repeat();
-        }
-
-       // ..... 等等的类似逻辑
-    }
-}
-
-<span class="boring">}</span></code></pre>
-<h2 id="73-meshmaterial3d"><a class="header" href="#73-meshmaterial3d">7.3 MeshMaterial3d</a></h2>
+<h2 id="83-meshmaterial3d"><a class="header" href="#83-meshmaterial3d">8.3 MeshMaterial3d</a></h2>
 <p>与<code>Mesh2d</code>对应的<code>MeshMaterial2d</code>相同，<code>Mesh3d</code>也对应了<code>MeshMaterial3d</code>。如果没有<code>MeshMaterial3d</code>只有<code>Mesh3d</code>，窗口上也不会渲染任何东西。</p>
-<h3 id="731-standardmaterial"><a class="header" href="#731-standardmaterial">7.3.1 StandardMaterial</a></h3>
+<h3 id="831-standardmaterial"><a class="header" href="#831-standardmaterial">8.3.1 StandardMaterial</a></h3>
 <p>好吧，为什么在渲染2d时我们使用的是<code>ColorMaterial</code>，但是到了3d我们却使用<code>StandardMaterial</code>呢？总之，别搞混了，<code>ColorMaterial</code>是一种2d材质，不要把他用在3d上，否则后果你懂的。</p>
 <p><code>StandardMaterial</code>这个名字其实是来自于PBR光照模型的一种约定，PBR光照模型是一种广泛被使用的，用来模拟各种材质的三维物体在渲染时的效果的算法，负责执行这部分的内容通常也被成为渲染引擎。<code>StandardMaterial</code>的结构体参数多达60个，其结构体定义如下（如果你用过blender，那么你肯定对材质十分头疼，但是我们现在学的是Bevy而不是怎么选择参数来控制渲染效果，只需要掌握几种创建<code>StandardMaterial</code>的方式就足够了。）</p>
 <p>这些字段的详细信息可以查看<a href="https://docs.rs/bevy/0.17.3/bevy/pbr/struct.StandardMaterial.html">文档</a>。</p>
@@ -787,7 +701,7 @@ commands
     pub texture: Option&lt;Handle&lt;Image&gt;&gt;,
 }
 <span class="boring">}</span></code></pre>
-<h3 id="732-base_color"><a class="header" href="#732-base_color">7.3.2 base_color</a></h3>
+<h3 id="832-base_color"><a class="header" href="#832-base_color">8.3.2 base_color</a></h3>
 <p>从纯色创建一个<code>StandardMaterial</code>最简单的，也是最常用的方法，就是直接创建一个<code>Color</code>然后添加到<code>StandardMaterial</code>的资产中，剩下的事情Bevy会为我们自己完成。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -814,7 +728,7 @@ commands
     ..default()
 })),
 <span class="boring">}</span></code></pre>
-<h3 id="733-alpha_mode"><a class="header" href="#733-alpha_mode">7.3.3 alpha_mode</a></h3>
+<h3 id="833-alpha_mode"><a class="header" href="#833-alpha_mode">8.3.3 alpha_mode</a></h3>
 <p>让我们回顾一下，<code>ColorMaterial</code>中的<code>alpha_mode</code>参数是一个<code>AlphaMode2d</code>类型的枚举，包含了三个值，分别表示 不透明、阈值、混合模式。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -838,29 +752,87 @@ commands
 }
 <span class="boring">}</span></code></pre>
 <p>看起来后五个值的作用都很相似？那么他们有什么区别呢？</p>
-<p>在<code>Blend</code>模式下，计算颜色公式是利用源图像和目标图像进行加权得到的，而这里的源图像的权值，就是我们透明通道的值。用公式表示为：<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Final Color</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span>。</p>
-<p>在<code>Premultiplied</code>模式下，将会假设你输入的图像已经与透明通道做了乘法，因此公式变为：<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Final Color</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span>，<code>Premultiplied</code>可以消除 <code>Blend</code> 模式中常见的黑色光环问题。</p>
+<p>在<code>Blend</code>模式下，计算颜色公式是利用源图像和目标图像进行加权得到的，而这里的源图像的权值，就是我们透明通道的值。用公式表示为：
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Final Color</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span>
+在<code>Premultiplied</code>模式下，将会假设你输入的图像已经与透明通道做了乘法，因此公式变为：
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Final Color</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span>
+<code>Premultiplied</code>可以消除 <code>Blend</code> 模式中常见的黑色光环问题。</p>
 <p>在<code>AlphaToCoverage</code>模式下的工作原理比较复杂，简而言之，它主要用于提高 多重采样抗锯齿（MSAA） 环境下，半透明或带遮罩边缘的渲染质量。因为在 MSAA 环境中，如果Blend模式导致一个像素被丢弃，它的所有 子样本也会被同时丢弃。这导致锯齿状的边缘非常明显，缺乏平滑过渡。</p>
 <p>在<code>Add</code>模式下，前一种颜色的值会和后一种颜色的值直接相加，由于颜色分量相加，最终的颜色值会大于或等于原始的背景颜色，从而产生发光、发亮的效果，因此在火焰、烟雾、光晕和粒子特效中经常使用这种模式。</p>
 <p>在<code>Multiply</code>模式下，源颜色和目标颜色的 RGB 分量被直接相乘。相乘的结果总是会比两个原始颜色中的任何一个都要暗。这可以产生一种褪色或者污渍的效果。</p>
-<h3 id="734-base_color_texture与uv_transform"><a class="header" href="#734-base_color_texture与uv_transform">7.3.4 base_color_texture与uv_transform</a></h3>
+<h3 id="834-base_color_texture与uv_transform"><a class="header" href="#834-base_color_texture与uv_transform">8.3.4 base_color_texture与uv_transform</a></h3>
 <p>之前我们在讲2D的时候，曾说过“<code>uv_transform</code>要与<code>texture</code>一起使用时才能发挥作用”。而在这里的3D的情况，其实也是相同的，不过这两个参数稍有不同，变成了<code>base_color_texture</code>与<code>uv_transform</code>。</p>
 <p>如果你学习过一点blender，那你对uv肯定是再熟悉不过了，在这里我们不会去详细讨论这些概念，关于3维物体的图像材质与uv投影是一个很大的领域，这部分工作往往都是在建模软件里直接完成的，而不需要我们在bevy里做，我们也不应该在bevy里去做。</p>
-<p>这里的<code>uv_transform</code>与blender中的uv略有不同。细心的读者可以发现，这里的<code>uv_transform</code>居然是一个<code>Affine2</code>类型，查看文档，可以发现这样的描述：“The transform applied to the UVs corresponding to <code>ATTRIBUTE_UV_0</code> on the mesh before sampling. Default is identity.”这说明，这里的<code>uv_transform</code>是<strong>对uv图像本身给进行变换</strong>。在99%的情况下，我们都不需要修改这些设置，因为在建模时已经对齐了。</p>
-<h2 id="74-环境与大气"><a class="header" href="#74-环境与大气">7.4 环境与大气</a></h2>
-<h3 id="741-skybox"><a class="header" href="#741-skybox">7.4.1 skybox</a></h3>
-<h3 id="742-atmosphere"><a class="header" href="#742-atmosphere">7.4.2 atmosphere</a></h3>
-<h3 id="743-fog"><a class="header" href="#743-fog">7.4.3 fog</a></h3>
+<p>这里的<code>uv_transform</code>与blender中的uv略有不同。细心的读者可以发现，这里的<code>uv_transform</code>居然是一个<code>Affine2</code>类型，查看文档，可以发现这样的描述：“The transform applied to the UVs corresponding to <code>ATTRIBUTE_UV_0</code> on the mesh before sampling. Default is identity.”</p>
+<p>这说明，这里的<code>uv_transform</code>是<strong>对uv图像本身给进行变换</strong>。在99%的情况下，我们都不需要修改这些设置，因为在建模时已经对齐了。</p>
+<h2 id="84-wireframe"><a class="header" href="#84-wireframe">8.4 Wireframe</a></h2>
+<p>最后，让我们来介绍一下如何对3D模型进行简单的调试。当你兴致冲冲地加载了一个复杂的 glTF 模型，却发现屏幕上什么都没有，或者模型看起来扭曲得像个克苏鲁怪物时，你可能需要一种手段来观察它的骨架——也就是它的三角面片到底是怎么分布的。这就是**线框模式（Wireframe）**的用武之地。</p>
+<p>在 Bevy 中开启线框模式稍微有一点点门槛，因为它涉及到一些底层图形 API 的特性。</p>
+<p>首先，线框渲染并不是默认开启的。由于它依赖于 GPU 的特殊功能（<code>POLYGON_MODE_LINE</code>），你需要在初始化 <code>DefaultPlugins</code> 时手动添加 <code>WireframePlugin</code>。</p>
+<pre class="playground"><code class="language-rust">use bevy::pbr::wireframe::{WireframePlugin, WireframeConfig};
+use bevy::render::{render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin};
+
+fn main() {
+    App::new()
+        .add_plugins((
+            DefaultPlugins.set(RenderPlugin {
+                render_creation: WgpuSettings {
+                    // 开启底层线框模式支持
+                    features: WgpuFeatures::POLYGON_MODE_LINE,
+                    ..default()
+                }
+                .into(),
+                ..default()
+            }),
+            // 启用线框插件
+            WireframePlugin::default(),
+        ))
+    	// WireframeConfig是一个内置的很方便的控制resource，你可以通过他来切换所有物体是否显示线框
+        .insert_resource(WireframeConfig {
+       		global: true,
+        	default_color: WHITE.into(),
+        	..default()
+        })
+        .run();
+}</code></pre>
+<p>如果你想看场景里所有物体的线框，你可以修改 <code>WireframeConfig</code> 资源。这通常用于调试整个场景的性能。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn toggle_global_wireframe(mut config: ResMut&lt;WireframeConfig&gt;) {
+    config.global = true; // 开启后，全场所有 Mesh 都会显示线框
+    config.default_color = Color::WHITE; // 你甚至能改线框的颜色
+}
+<span class="boring">}</span></code></pre>
+<p>如果只想看某个特定模型的结构。这时你只需要给对应的 <code>Entity</code> 挂上一个 <code>Wireframe</code> 组件即可，这时<code>WireframeConfig</code>将不会影响该实体的设置。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>commands.spawn((
+    Mesh3d(mesh_handle),
+    MeshMaterial3d(material_handle),
+    Wireframe, // 只有这个物体会显示线框
+    WireframeColor { // 控制颜色
+        color: YELLOW.into(),
+    },
+    WireframeLineWidth { width: 3.0 }, // 粗细
+    WireframeTopology::Quads,// 线框形状
+));
+<span class="boring">}</span></code></pre>
+<p><img src="./image/chapter8/5.png" alt="image-20260106114325464"></p>
+<p>除了看起来很酷（很有黑客帝国的科技感）之外，线框模式在 3D 开发中有两个核心作用：</p>
+<ul>
+<li><strong>检查拓扑结构</strong>：你可以直观地看到模型是否过于精细（面数爆炸），或者是否存在法线反转导致的破面。</li>
+<li><strong>确认层级关系</strong>：在处理像我们在 8.2.2 节中提到的那种复杂的 glTF 场景时，开启线框能帮你快速定位每一个子 Mesh 的具体边界。</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="6: Transform.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="7: Camera.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="8: Light.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="9: Animation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -870,11 +842,11 @@ commands
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="6: Transform.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="7: Camera.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="8: Light.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="9: Animation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
