@@ -466,7 +466,7 @@ pub struct Transform {
 
 这个比较复杂的例子的名字叫做align，运行`cargo run --example align`，可以发现例子做了一件很简单的事情：当我们按下R随机生成一个旋转轴，按下T时将飞船对齐到旋转轴。
 
-![1](./image/chapter5.5/1.png)
+![1](./image/chapter6/1.png)
 
 让我们来看看代码都写了些什么？首先，例子里定义了这些组件，这些组件都非常的简单，只有一些需要额外的特殊说明。
 
