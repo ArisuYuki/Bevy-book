@@ -1,6 +1,6 @@
 ## 1.1 章节序言
 
-***孔明在荆州，与石广元、徐元直、孟公威俱游学，三人务于精熟，而亮独观其大略。*                           *—— 《魏略》***
+**_孔明在荆州，与石广元、徐元直、孟公威俱游学，三人务于精熟，而亮独观其大略。_ _—— 《魏略》_**
 
 笔者一直认为，学习一件事要由粗入细，由浅入深，因此本章的目标主要是快速让读者对于Bevy能有一个大概的印象，了解Bevy程序的主要组成部分。大量的细节部分我都将略去，因此读者如现在遇到不理解的地方可以不求甚解，后续的章节将会依次仔细展开各个部分进行详细的介绍。
 
@@ -80,8 +80,6 @@ bevy_render:::RenderPlugin,
 
 <img src="./image/chapter1/3.png" alt="3" style="zoom:25%;" />
 
-
-
 在这其中，除了`RunFixedMainLoop`外，几乎所有的步骤都是不言而喻的，那么`RunFixedMainLoop`是什么？
 
 一般而言，在游戏逻辑中，存在着两种更新方式：
@@ -160,8 +158,8 @@ public:
     void move(...) {...}
 private:
     std::string _name;
-    float _health; 
-    int _level; 
+    float _health;
+    int _level;
     float _position_x = 0;
     float _position_y = 0;
 };
@@ -271,11 +269,11 @@ fn add_score(mut commands: Commands) {
 
 ```rust
 //获得资产的可变引用以便更改
-fn some_system(mut score: ResMut<Score>) 
+fn some_system(mut score: ResMut<Score>)
 //只获得共享引用
-fn some_system(score: Res<Score>) 
+fn some_system(score: Res<Score>)
 //如果资产可能尚未创建，那么需要使用Option使之变为可选
-fn some_system(mut score: Option<ResMut<Score>>) 
+fn some_system(mut score: Option<ResMut<Score>>)
 ```
 
 ### 1.4.3 默认Resource
@@ -408,7 +406,7 @@ impl AssetLoader for LasLoader {
       let mut bin_data = Vec::new();
       reader.read_to_end(&mut bin_data).await?;
       //在这里编写真正加载数据的逻辑
-      //let points = ..... 
+      //let points = .....
       //然后返回一个资产
       Ok(PointCloud { points })
   }
@@ -493,13 +491,13 @@ fn setup(
 
 ### 1.6.2 渲染
 
-一个相机渲染的目标输出结果在程序中的绝大多数时候是`Winodw`或者`Image`。渲染到`Winodw`上即是将渲染结果渲染到实际窗口上，而渲染到`Image`则一般是为了保存到本地，或者使用UI库(例如egui)时显示3D画面。
+一个相机渲染的目标输出结果在程序中的绝大多数时候是`Window`或者`Image`。渲染到`Window`上即是将渲染结果渲染到实际窗口上，而渲染到`Image`则一般是为了保存到本地，或者使用UI库(例如egui)时显示3D画面。
 
 默认状态下，相机的渲染目标是`Window`，如果要渲染到`Image`需要先进行一定的配置，这部分将在后面的章节中详细介绍。
 
 ## 1.7 输入
 
-​	Bevy中的输入分为两类：
+​ Bevy中的输入分为两类：
 
 1. Bevy系统对于某些动作自动发出的事件，例如资产加载完成
 2. 系统接收到的外部输入，例如键盘鼠标等
@@ -566,11 +564,11 @@ fn shoot_input_system(mouse: Res<ButtonInput<MouseButton>>) {
 
 Bevy的`Message`系统组成主要分为三部分，他们三者相互配合一起构成了Bevy的`Message`系统。为了避免消息队列的无限增长，**上一帧的`Message`将会在下一帧结束时被清除**，因此如果你不采取一些另外的措施，就不能将消息留到之后进行处理。
 
-|        名称        | 作用                                                         |
-| :----------------: | ------------------------------------------------------------ |
+|        名称        | 作用                                                                   |
+| :----------------: | ---------------------------------------------------------------------- |
 |   `Messages<T>`    | 一个队列，用于容纳事件的信息，本质上是一个带有一些其他方法的`Vec<T>`。 |
-| `MessageWriter<T>` | 将消息写入`Messages<T>`中。                                  |
-| `MessageReader<T>` | 从队列中读取事件，同时进行一些额外操作保证不会重复读取同一个事件。 |
+| `MessageWriter<T>` | 将消息写入`Messages<T>`中。                                            |
+| `MessageReader<T>` | 从队列中读取事件，同时进行一些额外操作保证不会重复读取同一个事件。     |
 
 在使用`Message`系统前，必须要先定义我们的消息类型，然后进行消息类型的注册。
 
