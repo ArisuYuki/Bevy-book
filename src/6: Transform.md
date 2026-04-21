@@ -134,7 +134,12 @@ $$
 \end{array} \right]
 \begin{bmatrix} x \\ y \\ z \\ 1 \end{bmatrix}
 $$
-对于这个式子，我们把中间的矩阵记作如下，这个变换叫做 **World-to-Local（世界坐标系到局部坐标系）** 变换，其中$\mathbf{P}$是新的局部坐标系的原点，在世界的局部坐标系下的坐标。
+对于这个式子，我们把中间的矩阵记作如下，这个变换叫做 **World-to-Local（世界坐标系到局部坐标系）** 变换，**其中$\mathbf{P}$局部坐标系的原点，在世界坐标系下的坐标。**
+
+> [!IMPORTANT]
+>
+> 很多教程和库（如 OpenCV/SLAM 等）直接将变换矩阵的平移项记作 $\mathbf{t}$。**此时的 $\mathbf{t}$ 并不是局部坐标系原点 $\mathbf{P}$ 本身**，而是 $\mathbf{P}$ 在局部坐标系下经过旋转补偿后的投影，即 $\mathbf{t} = -\mathbf{R}^T \mathbf{P}$。从几何含义上看，这实际上就是**世界坐标系原点，在局部坐标系下的坐标**。
+
 $$
 \mathbf{M}_{W \to L} = \left[ \begin{array}{c:c} 
 \mathbf{R}^T_{3 \times 3} & \mathbf{t}_{3 \times 1} \\ \hdashline
@@ -502,7 +507,7 @@ struct SeededRng(ChaCha8Rng);
 
 > [!IMPORTANT]
 >
-> 注意！bevy中的物体的局部坐标系是**-Z轴**是视野正前方，向上是Y轴，X和YZ组成**右手直角坐标系**。
+> 注意！bevy中的相机，其局部坐标系**-Z轴**是视野正前方，向上是Y轴，X和YZ组成**右手直角坐标系**。
 >
 > 世界坐标系中，向上是Y轴，从屏幕内只指向屏幕前的你是Z轴，X和YZ组成**右手直角坐标系**
 
