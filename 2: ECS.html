@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f6872c50.js";
+            window.path_to_searchindex_js = "searchindex-477a0cf4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a10d5cb8.js"></script>
@@ -209,15 +209,13 @@ commands.spawn((Car, ChildOf(player)));
 <p>要指定当前实体的子实体，可以通过通过<code>EntityCommands</code>上的<code>with_children</code>方法或者<code>children!</code>来实现。此外，<code>EntityCommands</code>还包含了大量与父子关系相关的方法，通过这些方法还可以动态的删除、替换实体之间的父子关系。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>commands
-	.spawn((Player)
+</span>commands.spawn((Player)
   .with_children(|parent| {
 			parent.spawn((Car,));
   });
    
 //也可以使用宏来完成
-commands
-	.spawn((Player),
+commands.spawn((Player),
   children![
       (Car,),
       (Car,),
@@ -231,8 +229,8 @@ commands
 #[relationship(relationship_target = TargetedBy)]
 struct Targeting(Entity);
 
-//定义一个关系的“目标”，由于一个目标会有多个相关联的实体，因此这里是Vec&lt;Entity&gt;
-//在这里我们启用linked_spawn后，能够让Bevy在target销毁时自动清除其内的关联实体
+// 定义一个关系的“目标”，由于一个目标会有多个相关联的实体，因此这里是Vec&lt;Entity&gt;
+// 在这里我们启用linked_spawn后，能够让Bevy在target销毁时自动清除其内的关联实体
 #[derive(Component, Debug)]
 #[relationship_target(relationship = Targeting，linked_spawn)]
 struct TargetedBy(Vec&lt;Entity&gt;);
@@ -419,10 +417,10 @@ commands.entity(player).get::&lt;Health&gt;().unwrap();
 <li>如果<code>#[require()]</code>中存在明显的构造函数，则优先选择该构造函数。</li>
 <li>否则，对<code>require</code>树执行深度优先搜索并选择找到的第一个。</li>
 </ol>
-<p>​	以上的方式通过在编译时生成必须组件，当我们在运行时需要指定必须组件时，可以调用<code>World</code>上的<code>register_required_components</code>或<code>register_required_components_with</code>方法，具体的使用方式可以查询Bevy文档即可，这里不再赘述。</p>
+<p>以上的方式通过在编译时生成必须组件，当我们在运行时需要指定必须组件时，可以调用<code>World</code>上的<code>register_required_components</code>或<code>register_required_components_with</code>方法，具体的使用方式可以查询Bevy文档即可，这里不再赘述。</p>
 <h3 id="224-常用组件"><a class="header" href="#224-常用组件">2.2.4 常用组件</a></h3>
 <p>Bevy为我们内置了一些常用的组件，这些组件提供了最基础的功能用于控制一些最基本的实体行为，我们将介绍一些常用的基本组件。</p>
-<p><code>Transform</code>是一个最常用的组件之一，用于控制实体的变换，其定义如下，包含最基本的平移、旋转、缩放。值得一提的是，**<code>Transform</code>是实体相对于其父位置的位置，如果没有ChildOf组件，则为参考框架，如果不想受到父实体的影响，可以使用<code>GlobalTransform</code>组件。**这些组件运行在<code>PostUpdate</code>调度中，因此改变后下一帧才会发生变化，不过在多数时候这都是不那么重要的。</p>
+<p><code>Transform</code>是一个最常用的组件之一，用于控制实体的变换，其定义如下，包含最基本的平移、旋转、缩放。值得一提的是，**<code>Transform</code>是实体相对于其父位置的位置，如果没有ChildOf组件，则为固定的世界坐标系。**这些组件运行在<code>PostUpdate</code>调度中，因此改变后下一帧才会发生变化，不过在多数时候这都是不那么重要的。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub struct Transform {

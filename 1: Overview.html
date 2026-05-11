@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f6872c50.js";
+            window.path_to_searchindex_js = "searchindex-477a0cf4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a10d5cb8.js"></script>
@@ -176,7 +176,7 @@
                     <main>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
 <h2 id="11-章节序言"><a class="header" href="#11-章节序言">1.1 章节序言</a></h2>
-<p><strong><em>孔明在荆州，与石广元、徐元直、孟公威俱游学，三人务于精熟，而亮独观其大略。</em>                           <em>—— 《魏略》</em></strong></p>
+<p><strong><em>孔明在荆州，与石广元、徐元直、孟公威俱游学，三人务于精熟，而亮独观其大略。</em> <em>—— 《魏略》</em></strong></p>
 <p>笔者一直认为，学习一件事要由粗入细，由浅入深，因此本章的目标主要是快速让读者对于Bevy能有一个大概的印象，了解Bevy程序的主要组成部分。大量的细节部分我都将略去，因此读者如现在遇到不理解的地方可以不求甚解，后续的章节将会依次仔细展开各个部分进行详细的介绍。</p>
 <h2 id="12-hello-bevy"><a class="header" href="#12-hello-bevy">1.2 Hello Bevy!</a></h2>
 <p>将Bevy作为一个依赖项，新建一个Rust项目，输入以下代码让我们开始吧</p>
@@ -234,7 +234,7 @@ bevy_render:::RenderPlugin,
 </table>
 </div>
 <p>这里提到了主世界与渲染世界，何为主世界？何为渲染世界？</p>
-<p>按照传统的渲染流程，系统的工作是顺序的即：更新-&gt;渲染-&gt;更新-&gt;渲染，这样的工作方式导致下一帧的更新需要等待上一帧的渲染结束。</p>
+<p>按照传统的渲染流程，系统的工作是顺序的即：更新-&gt;渲染-&gt;更新-&gt;渲染，这样的工作方式导致下一帧的更新需要等待上一帧的渲染结束(比如csgo就是这样的，所以玩csgo帧率越高你赢得机会就越大不是没有道理)。</p>
 <img src="./image/chapter1/1.png" alt="1" style="zoom:25%;" />
 <p>将渲染步骤剥离出来，划分为主世界与渲染世界，并在其中添加Extract同步系统，即可将其变为并行工作的系统提高效率。这便是主世界与渲染世界的由来，这种分离的方式将游戏划分为三部分并分别独立出来，能够使得系统解偶的同时提高并行化。</p>
 <img src="./image/chapter1/2.png" alt="2" style="zoom: 25%;" />
@@ -306,13 +306,13 @@ public:
     void move(...) {...}
 private:
     std::string _name;
-    float _health; 
-    int _level; 
+    float _health;
+    int _level;
     float _position_x = 0;
     float _position_y = 0;
 };
 </code></pre>
-<p>而在一个ECS系统中，则会将其建模为如下的部分。观察他们，我们可以发现在面向对象中，对象的各种属性对应的就是ECS中的<code>Component</code>，而对象的方法则对应一个有着特殊参数的普通的函数在，这个有着特殊参数的函数，就是ECS模式中的<code>System</code>。</p>
+<p>而在一个ECS系统中，则会将其建模为如下的部分。观察他们，我们可以发现在面向对象中，对象的各种属性对应的就是ECS中的<code>Component</code>，而对象的方法则对应一个有着特殊参数的普通的函数，这个有着特殊参数的函数，就是ECS模式中的<code>System</code>。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>#[derive(Entity)]
@@ -395,11 +395,11 @@ App.insert_resource::&lt;Setting&gt;()
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>//获得资产的可变引用以便更改
-fn some_system(mut score: ResMut&lt;Score&gt;) 
+fn some_system(mut score: ResMut&lt;Score&gt;)
 //只获得共享引用
-fn some_system(score: Res&lt;Score&gt;) 
+fn some_system(score: Res&lt;Score&gt;)
 //如果资产可能尚未创建，那么需要使用Option使之变为可选
-fn some_system(mut score: Option&lt;ResMut&lt;Score&gt;&gt;) 
+fn some_system(mut score: Option&lt;ResMut&lt;Score&gt;&gt;)
 <span class="boring">}</span></code></pre>
 <h3 id="143-默认resource"><a class="header" href="#143-默认resource">1.4.3 默认Resource</a></h3>
 <p>除了我们自己创建的一些资产外，Bevy内存在着一些非常重要的内置全局资产，他们包括游戏经过的时间、键盘或鼠标的状态、网格、材质等，这些信息在游戏中是如此的常用。我们现在只粗略介绍一些，目的在于让读者明白Bevy中是通过<code>Resource</code>来管理这些重要数据的，后续章节中将会继续详细介绍其中使用方法。</p>
@@ -514,7 +514,7 @@ impl AssetLoader for LasLoader {
       let mut bin_data = Vec::new();
       reader.read_to_end(&amp;mut bin_data).await?;
       //在这里编写真正加载数据的逻辑
-      //let points = ..... 
+      //let points = .....
       //然后返回一个资产
       Ok(PointCloud { points })
   }
@@ -573,7 +573,7 @@ fn load_pointcloud(
 <h3 id="161-投影与坐标系"><a class="header" href="#161-投影与坐标系">1.6.1 投影与坐标系</a></h3>
 <p>在计算机图形学中，存在着两种投影方式，正交投影(Orthographic pro)和透视投影(Perspective projection)，他们的示意如下图所示其中<code>Camera2d</code>默认采用正交投影，<code>Camera3d</code>则是透视投影。</p>
 <p>正交投影是一种平行投影，读者可以想想将一个三维空间沿着视线轴压扁成二维平面。其重要的特点是投影之后物体的大小能够精确反应在三维空间的大小，但是丧失了物体之间的深度关系，在2D游戏或者工程制图中往往最常用。</p>
-<p>透视投影则是根据公线方程来进行投影的，投影后的结果和人眼观察三维空间所得到的结果相同。其重要的特点是符合近大远小的透视特征，图形具备立体感，在3D游戏中是最常用的投影。</p>
+<p>透视投影则是根据严格的透视与几何关系来进行投影的，投影后的结果和人眼观察三维空间所得到的结果相同。其重要的特点是符合近大远小的透视特征，图形具备立体感，在3D游戏中是最常用的投影。</p>
 <p><img src="./image/chapter1/4.png" alt="4"></p>
 <p>说完了投影，我们再来说说Bevy中的坐标系。在Bevy中的世界坐标系是一个空间右手坐标系，且Z轴从屏幕指向外部，Y轴从屏幕底部指向顶部，其原点默认处于屏幕的中心。这说明，对于<code>Camera2d</code>来说，Z轴的大小决定了相机的远近，也决定了画面的大小。而画面则是一副标准的右手平面直角坐标系。</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
@@ -585,7 +585,7 @@ fn load_pointcloud(
 <p>一个相机渲染的目标输出结果在程序中的绝大多数时候是<code>Window</code>或者<code>Image</code>。渲染到<code>Window</code>上即是将渲染结果渲染到实际窗口上，而渲染到<code>Image</code>则一般是为了保存到本地，或者使用UI库(例如egui)时显示3D画面。</p>
 <p>默认状态下，相机的渲染目标是<code>Window</code>，如果要渲染到<code>Image</code>需要先进行一定的配置，这部分将在后面的章节中详细介绍。</p>
 <h2 id="17-输入"><a class="header" href="#17-输入">1.7 输入</a></h2>
-<p>​	Bevy中的输入分为两类：</p>
+<p>Bevy中的输入分为两类：</p>
 <ol>
 <li>Bevy系统对于某些动作自动发出的事件，例如资产加载完成</li>
 <li>系统接收到的外部输入，例如键盘鼠标等</li>
