@@ -40,15 +40,13 @@ commands.spawn((Car, ChildOf(player)));
 要指定当前实体的子实体，可以通过通过`EntityCommands`上的`with_children`方法或者`children!`来实现。此外，`EntityCommands`还包含了大量与父子关系相关的方法，通过这些方法还可以动态的删除、替换实体之间的父子关系。
 
 ```rust
-commands
-	.spawn((Player)
+commands.spawn((Player)
   .with_children(|parent| {
 			parent.spawn((Car,));
   });
    
 //也可以使用宏来完成
-commands
-	.spawn((Player),
+commands.spawn((Player),
   children![
       (Car,),
       (Car,),
@@ -63,8 +61,8 @@ commands
 #[relationship(relationship_target = TargetedBy)]
 struct Targeting(Entity);
 
-//定义一个关系的“目标”，由于一个目标会有多个相关联的实体，因此这里是Vec<Entity>
-//在这里我们启用linked_spawn后，能够让Bevy在target销毁时自动清除其内的关联实体
+// 定义一个关系的“目标”，由于一个目标会有多个相关联的实体，因此这里是Vec<Entity>
+// 在这里我们启用linked_spawn后，能够让Bevy在target销毁时自动清除其内的关联实体
 #[derive(Component, Debug)]
 #[relationship_target(relationship = Targeting，linked_spawn)]
 struct TargetedBy(Vec<Entity>);
@@ -254,13 +252,13 @@ commands.entity(player).get::<Health>().unwrap();
 1. 如果`#[require()]`中存在明显的构造函数，则优先选择该构造函数。
 2. 否则，对`require`树执行深度优先搜索并选择找到的第一个。
 
-​	以上的方式通过在编译时生成必须组件，当我们在运行时需要指定必须组件时，可以调用`World`上的`register_required_components`或`register_required_components_with`方法，具体的使用方式可以查询Bevy文档即可，这里不再赘述。
+以上的方式通过在编译时生成必须组件，当我们在运行时需要指定必须组件时，可以调用`World`上的`register_required_components`或`register_required_components_with`方法，具体的使用方式可以查询Bevy文档即可，这里不再赘述。
 
 ### 2.2.4 常用组件
 
 Bevy为我们内置了一些常用的组件，这些组件提供了最基础的功能用于控制一些最基本的实体行为，我们将介绍一些常用的基本组件。
 
-`Transform`是一个最常用的组件之一，用于控制实体的变换，其定义如下，包含最基本的平移、旋转、缩放。值得一提的是，**`Transform`是实体相对于其父位置的位置，如果没有ChildOf组件，则为参考框架，如果不想受到父实体的影响，可以使用`GlobalTransform`组件。**这些组件运行在`PostUpdate`调度中，因此改变后下一帧才会发生变化，不过在多数时候这都是不那么重要的。
+`Transform`是一个最常用的组件之一，用于控制实体的变换，其定义如下，包含最基本的平移、旋转、缩放。值得一提的是，**`Transform`是实体相对于其父位置的位置，如果没有ChildOf组件，则为固定的世界坐标系。**这些组件运行在`PostUpdate`调度中，因此改变后下一帧才会发生变化，不过在多数时候这都是不那么重要的。
 
 ```rust
 pub struct Transform {
