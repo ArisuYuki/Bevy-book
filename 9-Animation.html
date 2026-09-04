@@ -1,0 +1,662 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第 9 章：3D动画 - Bevy游戏引擎指南</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-d5770578.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-cafa22a7.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bevy游戏引擎指南</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="91-动画总览"><a class="header" href="#91-动画总览">9.1 动画总览</a></h2>
+<p>要播放3D模型动画，不管怎样，我们都要先拿到模型，<strong>Gltf模型其实是一种Asset</strong>，因此我们在第三章中讨论的如何加载资产的那一整套，都可以完美的平移过来。</p>
+<p>首先我们需要一个<code>Resource</code>来存储句柄，以便在不同的系统之间传递。当然也可以传递一些别的东西，不过目前而言我们主要关心的是其中的<code>Handle</code>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Resource)]
+struct Fox(Handle&lt;Gltf&gt;);
+<span class="boring">}</span></code></pre>
+<p>然后，在<code>startup</code>阶段我们的<code>setup</code>系统中，只需要直接加载即可。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn setup(
+    mut commands: Commands,
+    asset_server: Res&lt;AssetServer&gt;,
+    mut meshes: ResMut&lt;Assets&lt;Mesh&gt;&gt;,
+    mut materials: ResMut&lt;Assets&lt;StandardMaterial&gt;&gt;,
+) {
+    commands.insert_resource(Fox(asset_server.load(FOX_PATH)));
+    //....
+}
+<span class="boring">}</span></code></pre>
+<p>在这里，我们将用上我们在第2章中介绍的条件运行(参见2.3.2 run_if)。我们希望在资源加载完成并且配置完成之前，不要运行我们的动画系统。（或者，我们也可以采用state的方法来切换系统的运行，你能想到怎么做吗？）</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 存储动画相关的资源
+#[derive(Resource)]
+struct Animations {
+    // 至于AnimationNodeIndex和AnimationGraph是什么，等待下文我们揭晓
+    animations: Vec&lt;AnimationNodeIndex&gt;,
+    graph_handle: Handle&lt;AnimationGraph&gt;,
+}
+
+// 这个系统在资产加载完成之前将会一直尝试运行
+app.add_systems(
+    Update,
+    spawn_fox_asset_when_ready.run_if(not(resource_exists::&lt;Animations&gt;)),
+)
+// 这个系统只有在加载完成后运行
+.add_systems(
+    Update,
+    keyboard_control.run_if(resource_exists::&lt;Animations&gt;),
+)
+<span class="boring">}</span></code></pre>
+<p>在<code>spawn_fox_asset_when_ready</code>系统中，我们依然采用我们的三板斧。使用<code>is_loaded_with_dependencies</code>来判断是否已经加载完成(详见3.1.1节，要时常复习才能温故知新！)</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn spawn_fox_asset_when_ready(
+    mut commands: Commands,
+    fox_handle: Res&lt;Fox&gt;,
+    asset_server: Res&lt;AssetServer&gt;,
+    gltfs: Res&lt;Assets&lt;Gltf&gt;&gt;,
+    mut graphs: ResMut&lt;Assets&lt;AnimationGraph&gt;&gt;,
+) {
+    // 如果尚未加载完成，那么先不执行
+    if !asset_server.is_loaded_with_dependencies(&amp;fox_handle.0) {
+        return;
+    }
+	// 然后后利用句柄来获得我们的资产，你还记得吗？
+    let fox = gltfs
+        .get(&amp;fox_handle.0)
+        .expect("a loaded asset should exist in the glTF assets collection");
+
+    // 很快你就会知道这里的三个动画对应了什么了
+    // 现在，只需要知道我们有了一个AnimationGraph类型的graph
+    // 还有了一个Vec&lt;NodeIndex&gt;类型的node_indices
+    let (graph, node_indices) = AnimationGraph::from_clips([
+        fox.named_animations["Run"].clone(),
+        fox.named_animations["Walk"].clone(),
+        fox.named_animations["Survey"].clone(),
+    ]);
+
+    // 保存这些动画信息，以便我们后续使用
+    let graph_handle = graphs.add(graph);
+    commands.insert_resource(Animations {
+        animations: node_indices,
+        graph_handle,
+    });
+
+    // 现在，我们才向bevy中添加真正的模型
+    commands
+        .spawn(SceneRoot(
+            fox.default_scene
+                .clone()
+                .expect("a default scene exists in this file"),
+        ))
+    	// 这里用到了observe，还记得observe有什么用吗？（详见2.7.1节，再次强调温故知新的重要性～）
+        .observe(setup_scene);
+}
+
+// 现在，每当SceneInstanceReady触发时，该函数将会被执行
+// 可是SceneInstanceReady是什么？他的完整路径是bevy::scene::SceneInstanceReady
+// 简而言之，这是bevy的一个内置事件，其定义如下，每当整个场景加载完成之后会被触发
+// pub struct SceneInstanceReady {
+//     pub entity: Entity,
+//     pub instance_id: InstanceId,
+// }
+// 而AnimationPlayer组件，是跟随scene自动添加的
+// 所以当SceneInstanceReady触发的时候，AnimationPlayer也已经存在
+fn setup_scene(
+    _ready: On&lt;SceneInstanceReady&gt;,
+    mut commands: Commands,
+    animations: Res&lt;Animations&gt;,
+    player: Single&lt;(Entity, &amp;mut AnimationPlayer)&gt;,
+) {
+    // 直接将内部的两个组件的所有权拿出来
+    let (entity, mut player) = player.into_inner();
+    // 然后我们需要new一个AnimationTransitions
+    // 如果你用过css，那么你一定也知道transition有什么用，这里的AnimationTransitions
+    // 也是一样的，当动画切换的时候，将会在动画之间插入平滑的过渡
+    let mut transitions = AnimationTransitions::new();
+	// 立刻开始重复播放第一个动画
+    transitions
+        .play(&amp;mut player, animations.animations[0], Duration::ZERO)
+        .repeat();
+	// 这里的commands.entity对应了我们在第2章介绍的EntityComands，还记得吗？
+    // 因此我们向scene根实体上，插入了这两个新的组件
+    commands
+        .entity(entity)
+        .insert(AnimationGraphHandle(animations.graph_handle.clone()))
+        .insert(transitions);
+}
+
+<span class="boring">}</span></code></pre>
+<p>这些代码看下来真是让人大汗淋漓。你可能心里会想，怎么那么多没见过的东西？<code>AnimationNodeIndex</code>是什么？<code>AnimationGraph</code>是什么？<code>AnimationTransitions</code>又是什么？<code>AnimationGraphHandle</code>又是什么？？</p>
+<p>让我们来一个个翻一翻源代码看看吧。<code>AnimationNodeIndex</code>其实只是一个别名，其本质上不过是一个含有u32类型的枚举罢了，这个数字标识了一个动画在gltf中的索引。这解释了为什么我们使用<code>transitions.play</code>方法时需要他。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// The index of either an animation or blend node in the animation graph.
+///
+/// These indices are the way that [animation players] identify each animation.
+///
+/// [animation players]: crate::AnimationPlayer
+pub type AnimationNodeIndex = NodeIndex&lt;u32&gt;;
+<span class="boring">}</span></code></pre>
+<p><code>AnimationGraph</code>包含了一个有向无环图，感兴趣的读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html">文档</a>，他其实相当复杂。描述了多个动画应该如何混合在一起。这是什么意思呢？我们在设计动画时，比如行走和攻击，一般都会设计成为两个单独的动画。如果不能将其混合起来一起播放，那么你行走的时候攻击时角色就会发生诡异的漂移（即脚不动但是角色还在跑，这在很多粗制滥造的游戏中很常见）。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Asset, Reflect, Clone, Debug)]
+#[reflect(Debug, Clone)]
+pub struct AnimationGraph {
+    /// The `petgraph` data structure that defines the animation graph.
+    pub graph: AnimationDiGraph,
+
+    /// The index of the root node in the animation graph.
+    pub root: NodeIndex,
+
+    /// The mask groups that each animation target (bone) belongs to.
+    ///
+    /// Each value in this map is a bitfield, in which 0 in bit position N
+    /// indicates that the animation target doesn't belong to mask group N, and
+    /// a 1 in position N indicates that the animation target does belong to
+    /// mask group N.
+    ///
+    /// Animation targets not in this collection are treated as though they
+    /// don't belong to any mask groups.
+    pub mask_groups: HashMap&lt;AnimationTargetId, AnimationMask&gt;,
+}
+// 其中
+/// A type alias for the `petgraph` data structure that defines the animation
+/// graph.
+pub type AnimationDiGraph = DiGraph&lt;AnimationGraphNode, (), u32&gt;;
+pub type AnimationMask = u64;
+pub struct AnimationTargetId(pub Uuid);
+<span class="boring">}</span></code></pre>
+<p>观察其代码，可以发现其由<code>graph</code>、<code>root</code>、<code>mask_groups</code>构成。<code>AnimationGraphNode</code>描述了如何对动画进行混合。<code>HashMap&lt;AnimationTargetId, u64&gt;</code>则描述了<strong>每块动画骨骼的uuid和掩码组</strong>之间的关系。掩码组是什么意思？</p>
+<p>为什么这里是一个<code>HashMap&lt;AnimationTargetId, AnimationMask&gt;</code>类型呢？其实这是一种典型的位图。u64类型含有64个bit位。因此每个骨骼，最多支持定义 <strong>64 个不同的掩码组</strong>。</p>
+<p>举个例子，一个复杂的模型可能有几百根骨骼，但你可能只想给其中的一部分（比如只有右手、或者只有上半身）分配掩码组。<code>HashMap</code> 只存储那些被分配了组的骨骼。你在 <code>mask_groups</code> 里把所有属于“上半身”的骨骼 ID 都标记为 <code>1 &lt;&lt; 0</code>（第 0 组）。<strong>节点 A</strong> 播放“奔跑”动画（不带掩码，作用于全身）。<strong>节点 B</strong> 播放“挥剑”或“换弹”动画，但你给这个节点设置一个掩码，指定它<strong>只作用于第 0 组</strong>。角色就可以一边跑（下半身由节点 A 控制），一边做攻击动作（上半身被节点 B 覆盖）。</p>
+<p>这方面的混合其实非常复杂，三言两语是搞不定的。如果对动画混合更感兴趣的读者，则需要查阅更详细的资料，这里就不再赘述。至于<code>AnimationGraphHandle</code>，这名字显而易见，由于<code>AnimationGraph</code>实际上是一种<code>asset</code>，因此当然也有对应的<code>handle</code>。</p>
+<hr>
+<p><code>AnimationTransitions</code>是一个用于控制动画之间过度的“增强型”<code>AnimationPlayer</code>。前面我们说当场景生成时，<code>AnimationPlayer</code>会自动添加到场景的任何根动画中。要使用<code>AnimationTransitions</code>你还必须把<code>AnimationGraphHandle</code>也同时放在一个实体上。仔细一想这也是正常的。因为动画过渡，本身就是利用动画图来实现的。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 第一次动画必须使用transitions.play而不能使用AnimationPlayer上的play方法
+// 因为AnimationTransitions需要记录动画的顺序，如果直接操作AnimationPlayer开始
+// 会导致AnimationTransitions 无法确定动画的切换关系，从而导致过渡效果通常不正确。
+let mut transitions = AnimationTransitions::new();
+transitions
+    .play(&amp;mut player, animations.animations[0], Duration::ZERO)
+    .repeat();
+// 并且我们把这两个组件都插入到了根上
+commands
+    .entity(entity)
+    .insert(AnimationGraphHandle(animations.graph_handle.clone()))
+    .insert(transitions);
+<span class="boring">}</span></code></pre>
+<p>最后，一切大功告成，只需要在按下不同的按键时切换不同动画即可。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn keyboard_control(
+    keyboard_input: Res&lt;ButtonInput&lt;KeyCode&gt;&gt;,
+    mut animation_players: Query&lt;(&amp;mut AnimationPlayer, &amp;mut AnimationTransitions)&gt;,
+    animations: Res&lt;Animations&gt;,
+    mut current_animation: Local&lt;usize&gt;,
+) {
+    // 这里的player是一个AnimationPlayer
+    // 而transitions则是我们插入的AnimationTransitions
+    for (mut player, mut transitions) in &amp;mut animation_players {
+        // 我们可以获取下一个动画的NodeIndex
+        let Some((&amp;playing_animation_index, _)) = player.playing_animations().next() else {
+            continue;
+        };
+		// 当按下特定的按键时，可以控制播放器的行为，比如播放暂停
+        if keyboard_input.just_pressed(KeyCode::Space) {
+            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
+            if playing_animation.is_paused() {
+                playing_animation.resume();
+            } else {
+                playing_animation.pause();
+            }
+        }
+        // 还可以控制播放速度
+         if keyboard_input.just_pressed(KeyCode::ArrowUp) {
+            let playing_animation = player.animation_mut(playing_animation_index).unwrap();
+            let speed = playing_animation.speed();
+            playing_animation.set_speed(speed * 1.2);
+        }
+        // 对于动画的切换，我们需要计算下一个索引，并重新使用transitions来切换
+        // 必须使用transitions.play()!否则过渡会出问题
+        if keyboard_input.just_pressed(KeyCode::Enter) {
+            *current_animation = (*current_animation + 1) % animations.animations.len();
+            transitions
+                .play(
+                    &amp;mut player,
+                    animations.animations[*current_animation],
+                    Duration::from_millis(250),
+                )
+                .repeat();
+        }
+
+       // ..... 等等的类似逻辑
+    }
+}
+
+<span class="boring">}</span></code></pre>
+<h2 id="92-动画图与控制"><a class="header" href="#92-动画图与控制">9.2 动画图与控制</a></h2>
+<p>上面那些乱七八糟的东西实在是看的让人头大，让我们首先来更仔细的看看所谓<code>AnimationGraph</code>的概念到底是什么吧。</p>
+<p>用更规范一些的说法，动画图（Animation Graph）是游戏引擎中用来管理、混合、切换和控制角色复杂动画的数据结构或可视化节点图。在不同的游戏引擎中有不同的名字（UE 中叫做 AnimGraph、Unity 中叫做 Animator Controlle），但是他们的核心作用是一样的，都负责在不同的模型动画之间进行过渡、平滑、混合。</p>
+<hr>
+<h3 id="921-骨骼与动画"><a class="header" href="#921-骨骼与动画">9.2.1 骨骼与动画</a></h3>
+<p>要理解为什么需要动画图，就必须理解，模型在建模软件中的骨骼动画是如何存在的。</p>
+<p>简而言之，如下图所示，骨架被外部模型表面包围，而模型的表面由顶点与三角形或四边形构成。骨架中的每一根骨骼都会影响皮肤的形状和位置。</p>
+<p><img src="./image/chapter9/1.png" alt=""></p>
+<p>骨架本身就是一个树状层级结构，每根骨骼都有一个相对父节点的位置、旋转和缩放（第六章中我们详细讨论过这些变换）。要给模型加入动画，就需要在时间轴的关键节点打上<strong>关键帧</strong>。Blender 会使用函数曲线在关键帧之间进行自动插值。这些针对同一套骨骼的所有的关键帧和时间曲线组合在一起，在 Blender 中被称为一个 Action（动作）。</p>
+<p>除此之外，为了让外部的模型顶点和三角形能够跟随骨架的变换而变化，网格的每个顶点都会绑定到一到多根骨骼上，并赋予 0 到 1 之间的权重。当骨骼移动时，顶点会根据权重按比例跟随移动。这些骨架顶点和周围网格顶点组成的关系叫做<strong>蒙皮(Skin)</strong>。</p>
+<p><img src="./image/chapter9/2.jpeg" alt=""></p>
+<p>对于 gltf 格式来说，骨骼本质上就是一个普通的 <code>Node</code>，<strong>Node</strong> 是一个纯粹的空间节点，它有层级关系（父子关系），并记录了自己的平移, 旋转, 缩放。例如他看起来可能是这样。</p>
+<pre><code class="language-json">"nodes": [
+  { "name": "Hips", "children": [ 1 ], "translation": [0, 1, 0] },     // Index 0: 髋关节（根节点）
+  { "name": "Thigh_L", "children": [ 2 ], "rotation": [0, 0, 0, 1] }, // Index 1: 左大腿
+  { "name": "Shin_L", "rotation": [0, 0, 0, 1] }                      // Index 2: 左小腿
+]
+</code></pre>
+<p>其中的 children 指明了个节点之间的父子关系，当 Hips 移动时，Thigh_L和 Shin_L 作为子节点，在空间中会自动跟着一起移动。</p>
+<p>而 gltf 的 Mesh 字段里，存的是几何体的顶点坐标。为了支持蒙皮，Mesh 的每个顶点都会额外附带两组数据：</p>
+<ul>
+<li><strong>JOINTS_0</strong>（关联骨骼）：这个顶点受哪几根骨头影响？（通常最多支持 4 根，用 Node 的索引表示）。</li>
+<li><strong>WEIGHTS_0</strong>（权重比例）：受这 4 根骨头影响的程度是多少？（4 个浮点数，加起来等于 1.0）。</li>
+</ul>
+<p>现在有了 Node 和 Mesh，但 GPU 还是不知道怎么算。这是因为Node和Mesh的坐标系之间是独立的，二者之间缺少一个变换矩阵。</p>
+<hr>
+<p>这个问题值得我们好好再聊一聊。举个例子，假如Mesh是手掌表面，而Node是手掌骨骼，在没有蒙皮的情况下，他们的坐标是相对于世界原点或者自己的父节点的。现在假如手掌骨骼相对手腕骨骼旋转了90度，这个旋转矩阵，是在骨骼自己的坐标系下旋转的，如果直接将其应用到手掌表面，那么骨骼会直接从手掌里甩出去了。</p>
+<p>因此，我们在做这个变换之前，需要先把Mesh顶点的坐标系和Node的坐标系对齐，这是一个4*4的变换矩阵（如果对应了四根骨头，那么就有4个变换矩阵）。这个矩阵就就叫做 <code>inverseBindMatrices</code>。</p>
+<hr>
+<p>Skin 就要负责提供这些信息。他看起来可能是这样的。<code>joints</code>字段告诉了引擎“这个 Skin 包含了哪些 Node 作为关节”，<code>inverseBindMatrices</code> 里是一个索引，意思是去寻找索引为 5 的 Accessor 里的数据作为逆变换矩阵。</p>
+<pre><code class="language-json">"skins": [
+  { "name": "HumanoidSkin", "joints": [ 0, 1, 2 ], "inverseBindMatrices": 5 }
+]
+</code></pre>
+<p>假如 Mesh 的每个顶点都存着：</p>
+<ul>
+<li>
+<p><strong>JOINTS_0</strong>: [1, 2, 0, 0] （这个顶点关联了 1 号骨骼小臂、2 号骨骼手腕）</p>
+</li>
+<li>
+<p><strong>WEIGHTS_0</strong>: [0.7, 0.3, 0, 0] （小臂占 70% 权重，手腕占 30% 权重）</p>
+</li>
+</ul>
+<p>在这种情况下，这个变换就可以表示为。
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="mord"><span class="mtable"><span class="col-align-r"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.75em;"><span style="top:-3.91em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord cjk_fallback">顶点最终位置</span></span></span></span><span style="top:-2.41em;"><span class="pstrut" style="height:3em;"></span><span class="mord"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.25em;"><span></span></span></span></span></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.75em;"><span style="top:-3.91em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathbf">0.7</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord text"><span class="mord">1</span><span class="mord cjk_fallback">号骨骼当前动画矩阵</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">1</span><span class="mord cjk_fallback">号骨骼逆绑定矩阵</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord cjk_fallback">顶点初始位置</span></span><span class="mclose delimcenter" style="top:0em;">)</span></span></span></span><span style="top:-2.41em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathbf">0.3</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord text"><span class="mord">2</span><span class="mord cjk_fallback">号骨骼当前动画矩阵</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">2</span><span class="mord cjk_fallback">号骨骼逆绑定矩阵</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord cjk_fallback">顶点初始位置</span></span><span class="mclose delimcenter" style="top:0em;">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.25em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
+<hr>
+<p>说到这里我们终于说完了最基本的骨骼知识，那么让我们回到正题，为什么我们需要<code>AnimationGraph</code>？</p>
+<p>因为 gltf 里，一个动画就是一段固定的、写死的数据采样流（例如从 0 秒到 1 秒，骨骼 A 旋转 45 度）。动画师不可能穷尽所有的动画可能，必须由游戏引擎在运行时利用动画师的这些已经写好的动画，拼接出新的动画。</p>
+<h3 id="922-animationgraph"><a class="header" href="#922-animationgraph">9.2.2 AnimationGraph</a></h3>
+<p>一个<code>AnimationGraph</code>是由<code>AnimationGraphNode</code>组成的一个有向无环图，其中后者分为三种类型。</p>
+<pre><code class="language-json">pub enum AnimationNodeType {
+    /// 动画图的数据源头。它负责从内存中加载并播放一个具体的动画资源
+    /// 它永远是动画图的叶子节点，没有子节点，只负责向上传递数据。
+    Clip(Handle&lt;AnimationClip&gt;),
+    /// 将多个子节点（可以是 Clip 或其他 Blend 节点）的动画效果按比例归一化后线性混合。
+    #[default]
+    Blend,
+    /// 将子节点的动画叠加到动画上。
+    Add,
+}
+</code></pre>
+<p>一个典型的游戏角色动画图在内存中可以是这样组合的。底层的两个 <strong><code>Clip</code></strong> 负责提供 <code>Walk</code> 和 <code>Run</code> 的原始骨骼矩阵。中间的 <strong><code>Blend</code></strong> 按照当前移动速度，把两者插值混合成一个自然快走姿势。顶层的 <strong><code>Add</code></strong> 节点直接把 <code>Attack</code> 的右手挥剑差值数据“加”在刚刚混合好的姿势上，最终算出送往顶点着色器（Vertex Shader）的骨骼矩阵。</p>
+<pre><code class="language-tex">                 [ 最终输出到骨骼 (Final Output) ]
+                               │
+                       [ Add 叠加节点 ] 
+                         /          \
+                        /            \  (加性叠加右手动作)
+           [ Blend 混合节点 ]        [ Clip: 挥剑攻击 (Attack) ]
+            /              \
+           /                \ (按速度 40%/60% 归一化混合)
+[ Clip: 走路 (Walk) ]   [ Clip: 跑步 (Run) ]
+</code></pre>
+<p>用代码来写这些流程的话，大概长这样。除了最通用的<code>add_edge</code>、<code>add_clip</code>之外，读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html">文档</a>，还有很多例如 <a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html#method.add_clips">add_clips</a>，<a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html#method.add_blend">add_blend</a> <a href="https://docs.rs/bevy/latest/bevy/animation/graph/struct.AnimationGraph.html#method.from_clips">from_clips</a>（我们在之前使用过这个方法）之类的便捷方法。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn setup_animation_graph(
+    mut commands: Commands,
+    mut animation_graphs: ResMut&lt;Assets&lt;AnimationGraph&gt;&gt;,
+    mut players: Query&lt;(Entity, &amp;mut AnimationPlayer), Added&lt;AnimationPlayer&gt;&gt;,
+    asset_server: Res&lt;AssetServer&gt;,
+) {
+    for (entity, mut player) in &amp;mut players {
+        // 构建动画图节点
+        let mut graph = AnimationGraph::new();
+        // 创建 Clip 节点
+        let clip_walk = asset_server.load(GltfAssetLabel::Animation(0).from_asset("models/character.gltf"));
+        let clip_run = asset_server.load(GltfAssetLabel::Animation(1).from_asset("models/character.gltf"));
+        let clip_attack = asset_server.load(GltfAssetLabel::Animation(2).from_asset("models/character.gltf"));
+
+        let node_walk = graph.add_clip(clip_walk, 1.0, graph.root);
+        let node_run = graph.add_clip(clip_run, 1.0, graph.root);
+        let node_attack = graph.add_clip(clip_attack, 1.0, graph.root);
+
+        // 将 Walk 和 Run 按 50%/50% 混合成移动动画
+        let node_blend = graph.add_node(AnimationNodeType::Blend, graph.root);
+        graph.add_edge(node_walk, node_blend);
+        graph.add_edge(node_run, node_blend);
+
+        // 将 Blend 产生的移动动画 作为基础，叠加 Attack
+        let node_add = graph.add_node(AnimationNodeType::Add, graph.root);
+        graph.add_edge(node_blend, node_add);
+        graph.add_edge(node_attack, node_add);
+
+        // 将根节点设为最终输出的 Add 节点
+        graph.root = node_add;
+
+        // 注册并播放动画图
+        let graph_handle = animation_graphs.add(graph);
+
+        // 在 AnimationPlayer 上开始播放该动画图
+        player.play(node_add).repeat();
+        
+        commands.entity(entity).insert(CharacterAnimation {
+            graph_handle,
+            node_walk,
+            node_run,
+            node_blend,
+            node_attack,
+            node_add,
+        });
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="923-animationplayer"><a class="header" href="#923-animationplayer">9.2.3 AnimationPlayer</a></h3>
+<p>仅仅能够混合不同的动画是远远不够的，我们还需要能够在运行时动态的改变动画的混合逻辑与速度等控制要素。</p>
+<p>在前面我们说到，<code>AnimationPlayer</code> 会自动添加到场景的任何根动画中，而控制动画，就要用到 <code>AnimationPlayer</code> 身上的方法。<code>AnimationPlayer</code> 上有着 <code>start</code>、<code>play</code>、<code>stop</code>、<code>is_playing_animation</code>、<code>animation_mut</code> 等等非常有用的方法，这些方法都需要一个 <code>AnimationNodeIndex</code> 类型的参数，即动画的 <code>index</code> ，读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/struct.AnimationPlayer.html">文档</a>。</p>
+<p>这里我们主要介绍 <code>is_playing_animation</code> 与 <code>animation_mut</code> 两个方法。前者主要用来查询当前播放的动画的<code>index</code>是否为该<code>index</code>，后者则用于获取id对应的 <code>ActiveAnimation</code> 。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>static CLIP_NODE_INDICES: [u32; 3] = [2, 3, 4];
+
+fn sync_weights(mut query: Query&lt;(&amp;mut AnimationPlayer, &amp;ExampleAnimationWeights)&gt;) {
+    for (mut animation_player, animation_weights) in query.iter_mut() {
+        for (&amp;animation_node_index, &amp;animation_weight) in CLIP_NODE_INDICES
+            .iter()
+            .zip(animation_weights.weights.iter())
+        {
+            // 查询当前动画的index是否为animation_node_index，如果不是那么则播放该动画
+            if !animation_player.is_playing_animation(animation_node_index.into()) {
+                animation_player.play(animation_node_index.into());
+            }
+
+            // 获得当前动画的ActiveAnimation并设置其权重
+            // 这里的active_animation是一个ActiveAnimation类型的结构体
+            if let Some(active_animation) =
+                animation_player.animation_mut(animation_node_index.into())
+            {
+                active_animation.set_weight(animation_weight);
+            }
+        }
+    }
+}
+
+<span class="boring">}</span></code></pre>
+<p><code>ActiveAnimation</code> 是 bevy 用来实时追踪和控制单个正在运行（或暂停）的动画实例的底层状态。里面存储了非常多有用的信息，并且暴露了很多有用的调整方法。读者可以查看<a href="https://docs.rs/bevy/latest/bevy/animation/struct.ActiveAnimation.html">文档</a>。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct ActiveAnimation {
+    /// 该动画当前生效的权重系数。动画图中的节点权重会乘以这个值，用来在运行时做平滑淡入淡出或调节混合比例。
+    weight: f32,
+    repeat: RepeatAnimation,
+    /// 播放倍速
+    speed: f32,
+    /// 该动画累计播放的总时间
+    elapsed: f32,
+    /// 动画片段内部的当前时间戳。永远限定在 [0.0, 动画时长] 范围内。
+    seek_time: f32,
+    /// 上一帧的 seek_time。
+    /// 引擎用它和当前的 seek_time 对比，来判断这一帧动画是否跨过了某个关键帧或动画事件
+    last_seek_time: Option&lt;f32&gt;,
+    /// 动画已经播放完成的次数
+    completions: u32,
+    /// 这一帧是否刚刚播放完一次
+    just_completed: bool,
+    paused: bool,
+}
+<span class="boring">}</span></code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="8-3D.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="10-Light.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="8-3D.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="10-Light.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
